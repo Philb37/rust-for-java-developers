@@ -1,0 +1,8 @@
+# PostgreSQL — started via Docker Compose
+postgres:
+  url: postgresql://postgres:password@localhost:5432/intro-to-rust
+  schema: public
+
+# Server
+server:
+  port: 1337

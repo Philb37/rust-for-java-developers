@@ -1,0 +1,4 @@
+name: rust
+variables:
+  - name: baseurl
+    value: http://localhost:1337
