@@ -39,7 +39,7 @@ public class TicketController {
     // GET /tickets/{id}
     // Rust parallel: findById → Option<Ticket> → .ok_or(TicketNotFoundError)?
     @GetMapping("/{id}")
-    public ResponseEntity<TicketResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<TicketResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
@@ -55,7 +55,7 @@ public class TicketController {
     // PATCH /tickets/{id}/status
     @PatchMapping("/{id}/status")
     public ResponseEntity<TicketResponse> updateStatus(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(service.updateStatus(id, request.status()));
     }

@@ -9,7 +9,7 @@ import java.util.List;
 
 // Rust parallel: a trait that defines data access behavior
 // JpaRepository gives us findById() which returns Optional<Ticket> — the clearest Option<T> parallel
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
+public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     // Rust parallel: fn find_by_status(status: TicketStatus) -> Vec<Ticket>
     List<Ticket> findByStatus(TicketStatus status);

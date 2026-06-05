@@ -1,0 +1,10 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.9"
+time = { version = "0.3.47", features = ["formatting", "macros", "parsing", "serde", "serde-well-known"] }
+tokio = { version = "1.52.3", features = ["full"] }
+tower = "0.5.3"

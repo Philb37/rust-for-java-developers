@@ -38,7 +38,7 @@ public class TicketService {
     }
 
     // Rust parallel: fn get_by_id(id: u64) -> Result<TicketResponse, TicketNotFoundError>
-    public TicketResponse getById(Long id) {
+    public TicketResponse getById(Integer id) {
         return repository.findById(id)          // Optional<Ticket>  ←→  Option<Ticket>
                 .map(TicketResponse::from)      // Optional<TicketResponse>
                 .orElseThrow(() -> new TicketNotFoundException(id));
@@ -57,11 +57,11 @@ public class TicketService {
                 // Rust: .map(TicketResponse::from)
                 .map(TicketResponse::from)
                 // Rust: .collect::<Vec<_>>()
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Rust parallel: fn update_status(id: u64, status: TicketStatus) -> Result<TicketResponse, TicketNotFoundError>
-    public TicketResponse updateStatus(Long id, TicketStatus newStatus) {
+    public TicketResponse updateStatus(Integer id, TicketStatus newStatus) {
         Ticket ticket = repository.findById(id)
                 .orElseThrow(() -> new TicketNotFoundException(id));
 

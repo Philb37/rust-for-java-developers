@@ -9,7 +9,7 @@ import java.util.Optional;
 
 // Rust parallel: struct TicketResponse { id: u64, title: String, description: Option<String>, ... }
 public record TicketResponse(
-        Long id,
+        Integer id,
         String title,
         Optional<String> description,
         TicketStatus status,

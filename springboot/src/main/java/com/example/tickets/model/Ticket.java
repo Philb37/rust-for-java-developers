@@ -20,25 +20,25 @@ public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     private String title;
 
     // Option<String> — may or may not have a description
-    @Column
+    @Column(columnDefinition = "text")
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     private TicketStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     private Priority priority;
 
     // Option<String> — may or may not be assigned
-    @Column
+    @Column(columnDefinition = "text")
     private String assignee;
 
     @Column(nullable = false)
@@ -52,8 +52,8 @@ public class Ticket {
         }
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
