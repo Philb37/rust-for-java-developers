@@ -5,7 +5,9 @@ cargo add tower_http --features trace
 cargo add tokio --features full
 cargo add time --features serde,serde-well-known,macros,formatting,parsing
 cargo add serde --features derive
-cargo add sea-orm --features sqlx-postgres,runtime-tokio,macros,mock
+cargo add diesel --features postgres_backend,time
+cargo add diesel-async --features tokio-postgres,deadpool,postgres
+cargo add deadpool@0.13 --features rt_tokio_1
 cargo add tracing_subscriber --features env-filter
 cargo add validator --features derive
 cargo add --dev serde_json http_body_util

@@ -4,6 +4,7 @@ use validator::{Validate, ValidationError};
 use crate::models::{priority::Priority};
 
 #[derive(Deserialize, Validate)]
+#[cfg_attr(test, derive(Clone, Debug))]
 pub struct CreateTicketRequest {
     #[validate(custom(function = "not_blank"))]
     pub title: String,

@@ -1,9 +1,7 @@
 use serde::Serialize;
 use time::{OffsetDateTime, serde::rfc3339};
 
-use crate::models::{priority::Priority, ticket_status::TicketStatus};
-
-use crate::models::ticket::Model as Ticket;
+use crate::models::{priority::Priority, ticket::Ticket, ticket_status::TicketStatus};
 
 #[derive(Serialize)]
 pub struct TicketResponse {
@@ -11,16 +9,14 @@ pub struct TicketResponse {
     pub title: String,
     pub description: Option<String>,
     pub status: TicketStatus, // That's a leak of our domain model, but let's keep it simple for now
-    pub priority: Priority, // That's a leak of our domain model, but let's keep it simple for now
+    pub priority: Priority,   // That's a leak of our domain model, but let's keep it simple for now
     pub assignee: Option<String>,
     #[serde(with = "rfc3339")]
     pub created_at: OffsetDateTime,
 }
 
 impl From<Ticket> for TicketResponse {
-    
     fn from(ticket: Ticket) -> Self {
-        
         Self {
             id: ticket.id,
             title: ticket.title,
@@ -28,7 +24,7 @@ impl From<Ticket> for TicketResponse {
             status: ticket.status,
             priority: ticket.priority,
             assignee: ticket.assignee,
-            created_at: ticket.created_at
+            created_at: ticket.created_at,
         }
     }
 }

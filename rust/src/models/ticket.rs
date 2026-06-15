@@ -1,60 +1,63 @@
-use sea_orm::entity::prelude::*;
+use diesel::{
+    Selectable,
+    pg::Pg,
+    prelude::{AsChangeset, Identifiable, Insertable, Queryable},
+};
+use time::OffsetDateTime;
 
-use crate::{models::{priority::Priority, ticket_status::TicketStatus}, schemas::create_ticket_request::CreateTicketRequest};
+use crate::{
+    models::{priority::Priority, ticket_status::TicketStatus},
+    schemas::create_ticket_request::CreateTicketRequest,
+};
 
-#[sea_orm::model]
-#[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
-#[sea_orm(table_name = "tickets")]
-pub struct Model {
-    #[sea_orm(primary_key)]
+#[derive(Queryable, Selectable, AsChangeset, Identifiable, Debug)]
+#[diesel(table_name = crate::schema::tickets)]
+#[diesel(check_for_backend(Pg))]
+#[cfg_attr(test, derive(Clone))]
+pub struct Ticket {
     pub id: i32,
-    #[sea_orm(column_type = "Text")]
     pub title: String,
-    #[sea_orm(column_type = "Text")]
     pub description: Option<String>,
-    #[sea_orm(column_type = "Text")]
     pub status: TicketStatus,
-    #[sea_orm(column_type = "Text")]
     pub priority: Priority,
-    #[sea_orm(column_type = "Text")]
     pub assignee: Option<String>,
-    pub created_at: TimeDateTimeWithTimeZone
+    pub created_at: OffsetDateTime,
 }
 
-#[async_trait::async_trait]
-impl ActiveModelBehavior for ActiveModel {
-
-    // Runs before INSERT and UPDATE
-    async fn before_save<C>(mut self, _db: &C, insert: bool) -> Result<Self, DbErr>
-    where
-        C: ConnectionTrait,
-    {
-        // One of the equivalent to @PrePersist
-        if insert {
-
-            self.created_at = sea_orm::ActiveValue::Set(time::OffsetDateTime::now_utc());
-
-            if self.status.is_not_set() {
-                self.status = sea_orm::ActiveValue::Set(TicketStatus::Open);
-            }
-        }
-
-        Ok(self)
-    }
+#[derive(Insertable, Debug)]
+#[diesel(table_name = crate::schema::tickets)]
+#[cfg_attr(test, derive(PartialEq, Eq))]
+pub struct NewTicket {
+    title: String,
+    status: TicketStatus,
+    priority: Priority,
+    description: Option<String>,
+    assignee: Option<String>,
 }
 
-impl From<CreateTicketRequest> for ActiveModel {
+#[derive(AsChangeset, Debug)]
+#[diesel(table_name = crate::schema::tickets)]
+#[cfg_attr(test, derive(PartialEq, Eq))]
+pub struct TicketUpdate {
+    status: TicketStatus,
+}
+
+impl From<CreateTicketRequest> for NewTicket {
     fn from(request: CreateTicketRequest) -> Self {
         Self {
-            title: sea_orm::ActiveValue::Set(request.title),
-            description: sea_orm::ActiveValue::Set(request.description),
-            priority: sea_orm::ActiveValue::Set(request.priority),
-            assignee: sea_orm::ActiveValue::Set(request.assignee),
-            ..Default::default()
+            title: request.title,
+            status: TicketStatus::Open,
+            priority: request.priority,
+            description: request.description,
+            assignee: request.assignee,
         }
     }
 }
 
-// New type
-// #[derive(Clone, Debug, PartialEq, Eq, DeriveValueType)]
-// pub struct Integer(i32);
+impl From<TicketStatus> for TicketUpdate {
+    fn from(status: TicketStatus) -> Self {
+        Self {
+            status
+        }
+    }
+}
