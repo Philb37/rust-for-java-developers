@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-        "title": "First ticket",
-        "priority": "HIGH"
+        "title": "Another ticket",
+        "priority": "CRITICAL"
       }
   auth: inherit
 

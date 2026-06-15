@@ -6,7 +6,7 @@ use axum::{
 
 use crate::{
     app_state::AppState,
-    extractors::{validated_json::ValidatedJson, validated_query::ValidatedQuery},
+    extractors::{app_query::AppQuery, validated_json::ValidatedJson},
     schemas::{
         app_error::AppError,
         app_response::{AppJson, Created},
@@ -52,7 +52,7 @@ async fn get_by_id(
 #[debug_handler]
 async fn list(
     State(app_state): State<AppState>,
-    ValidatedQuery(params): ValidatedQuery<RequestParams>,
+    AppQuery(params): AppQuery<RequestParams>,
 ) -> Result<AppJson<Vec<TicketResponse>>, AppError> {
     Ok(AppJson(
         app_state
@@ -78,15 +78,23 @@ async fn update_status(
 
 #[cfg(test)]
 mod tests {
+
+    use std::sync::Arc;
+
     use axum::{body::Body, extract::Request, http::StatusCode};
     use http_body_util::BodyExt;
-    use sea_orm::MockDatabase;
-    use time::{OffsetDateTime, macros::datetime};
+    use mockall::predicate::eq;
+    use time::macros::datetime;
     use tower::ServiceExt;
 
     use crate::{
         app,
-        models::{priority::Priority, ticket, ticket_status::TicketStatus},
+        models::{
+            priority::Priority,
+            ticket::{NewTicket, Ticket, TicketUpdate},
+            ticket_status::TicketStatus,
+        },
+        repository::ticket_repository::MockTicketRepository,
         services::ticket_service::TicketService,
     };
 
@@ -100,20 +108,34 @@ mod tests {
     async fn create_returns_201() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results([vec![ticket::Model {
-                id: 1,
-                title: "Printer is on fire".to_string(),
-                description: None,
-                status: TicketStatus::Open,
-                priority: Priority::High,
-                assignee: None,
-                created_at: datetime!(2026-01-01 00:00 UTC),
-            }]])
-            .into_connection();
+        let title = "Printer is on fire".to_string();
+        let same_title = title.clone();
+
+        let create_ticket_request = CreateTicketRequest {
+            title: same_title.clone(),
+            priority: Priority::High,
+            description: None,
+            assignee: None,
+        };
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_save()
+            .with(eq::<NewTicket>(create_ticket_request.clone().into()))
+            .returning(move |_| {
+                Ok(Ticket {
+                    id: 1,
+                    title: "Printer is on fire".to_string(),
+                    description: None,
+                    status: TicketStatus::Open,
+                    priority: Priority::High,
+                    assignee: None,
+                    created_at: datetime!(2026-01-01 00:00 UTC),
+                })
+            });
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -155,10 +177,10 @@ mod tests {
     async fn create_returns_422() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres).into_connection();
+        let mock_repo = MockTicketRepository::new();
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -180,10 +202,10 @@ mod tests {
     async fn create_returns_400() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres).into_connection();
+        let mock_repo = MockTicketRepository::new();
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -205,20 +227,24 @@ mod tests {
     async fn stats_returns_200() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results([vec![ticket::Model {
-                id: 1,
-                title: "Printer is on fire".to_string(),
-                description: None,
-                status: TicketStatus::Open,
-                priority: Priority::High,
-                assignee: None,
-                created_at: OffsetDateTime::now_utc(),
-            }]])
-            .into_connection();
+        let tickets = vec![Ticket {
+            id: 1,
+            title: "Printer is on fire".to_string(),
+            description: None,
+            status: TicketStatus::Open,
+            priority: Priority::High,
+            assignee: None,
+            created_at: datetime!(2026-01-01 00:00 UTC),
+        }];
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_list()
+            .with(eq(None), eq(None))
+            .returning(move |_, _| Ok(tickets.clone()));
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -257,20 +283,27 @@ mod tests {
     async fn get_by_id_returns_200() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results([vec![ticket::Model {
-                id: 1,
-                title: "Printer is on fire".to_string(),
-                description: None,
-                status: TicketStatus::Open,
-                priority: Priority::High,
-                assignee: None,
-                created_at: datetime!(2026-01-01 00:00 UTC),
-            }]])
-            .into_connection();
+        let title = "Printer is on fire".to_string();
+        let id = 1;
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_find_by_id()
+            .with(eq(id))
+            .returning(move |_| {
+                Ok(Some(Ticket {
+                    id,
+                    title: title.clone(),
+                    description: None,
+                    status: TicketStatus::Open,
+                    priority: Priority::High,
+                    assignee: None,
+                    created_at: datetime!(2026-01-01 00:00 UTC),
+                }))
+            });
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -310,19 +343,23 @@ mod tests {
     async fn get_by_id_returns_404() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results::<ticket::Model, _, _>([vec![]])
-            .into_connection();
+        let id = 42;
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_find_by_id()
+            .with(eq(id))
+            .returning(move |_| Ok(None));
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
             .oneshot(
                 Request::builder()
                     .method("GET")
-                    .uri("/tickets/1")
+                    .uri("/tickets/42")
                     .header("content-type", "application/json")
                     .body(Body::empty())
                     .unwrap(),
@@ -337,31 +374,38 @@ mod tests {
     async fn list_returns_200_no_params() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results([vec![
-                ticket::Model {
-                    id: 1,
-                    title: "Printer is on fire".to_string(),
-                    description: None,
-                    status: TicketStatus::Open,
-                    priority: Priority::High,
-                    assignee: None,
-                    created_at: datetime!(2026-01-01 00:00 UTC),
-                },
-                ticket::Model {
-                    id: 2,
-                    title: "Printer is on fire (again)".to_string(),
-                    description: Some("This time the flames are blue".to_string()),
-                    status: TicketStatus::Open,
-                    priority: Priority::High,
-                    assignee: Some("Firefighters".to_string()),
-                    created_at: datetime!(2026-01-02 00:00 UTC),
-                },
-            ]])
-            .into_connection();
+        let title = "Printer is on fire".to_string();
+        let second_title = "Printer is on fire (again)".to_string();
+
+        let tickets = vec![
+            Ticket {
+                id: 1,
+                title,
+                description: None,
+                status: TicketStatus::Open,
+                priority: Priority::High,
+                assignee: None,
+                created_at: datetime!(2026-01-01 00:00 UTC),
+            },
+            Ticket {
+                id: 2,
+                title: second_title,
+                description: Some("This time the flames are blue".to_string()),
+                status: TicketStatus::Open,
+                priority: Priority::High,
+                assignee: Some("Firefighters".to_string()),
+                created_at: datetime!(2026-01-02 00:00 UTC),
+            },
+        ];
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_list()
+            .with(eq(None), eq(None))
+            .returning(move |_, _| Ok(tickets.clone()));
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -412,31 +456,38 @@ mod tests {
     async fn list_returns_200() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results([vec![
-                ticket::Model {
-                    id: 1,
-                    title: "Printer is on fire".to_string(),
-                    description: None,
-                    status: TicketStatus::Open,
-                    priority: Priority::High,
-                    assignee: None,
-                    created_at: datetime!(2026-01-01 00:00 UTC),
-                },
-                ticket::Model {
-                    id: 2,
-                    title: "Printer is on fire (again)".to_string(),
-                    description: Some("This time the flames are blue".to_string()),
-                    status: TicketStatus::Open,
-                    priority: Priority::High,
-                    assignee: Some("Firefighters".to_string()),
-                    created_at: datetime!(2026-01-02 00:00 UTC),
-                },
-            ]])
-            .into_connection();
+        let title = "Printer is on fire".to_string();
+        let second_title = "Printer is on fire (again)".to_string();
+
+        let tickets = vec![
+            Ticket {
+                id: 1,
+                title,
+                description: None,
+                status: TicketStatus::Open,
+                priority: Priority::High,
+                assignee: None,
+                created_at: datetime!(2026-01-01 00:00 UTC),
+            },
+            Ticket {
+                id: 2,
+                title: second_title,
+                description: Some("This time the flames are blue".to_string()),
+                status: TicketStatus::Open,
+                priority: Priority::High,
+                assignee: Some("Firefighters".to_string()),
+                created_at: datetime!(2026-01-02 00:00 UTC),
+            },
+        ];
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_list()
+            .with(eq(Some(TicketStatus::Open)), eq(Some(Priority::High)))
+            .returning(move |_, _| Ok(tickets.clone()));
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -487,31 +538,28 @@ mod tests {
     async fn update_status_returns_200() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results([
-                vec![ticket::Model {
+        let title = "Printer is on fire".to_string();
+
+        let id = 1;
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_update_status()
+            .with(eq(id), eq::<TicketUpdate>(TicketStatus::InProgress.into()))
+            .returning(move |_, _| {
+                Ok(Some(Ticket {
                     id: 1,
-                    title: "Printer is on fire".to_string(),
-                    description: None,
-                    status: TicketStatus::Open,
-                    priority: Priority::High,
-                    assignee: None,
-                    created_at: datetime!(2026-01-01 00:00 UTC),
-                }],
-                vec![ticket::Model {
-                    id: 1,
-                    title: "Printer is on fire".to_string(),
+                    title: title.clone(),
                     description: None,
                     status: TicketStatus::InProgress,
                     priority: Priority::High,
                     assignee: None,
                     created_at: datetime!(2026-01-01 00:00 UTC),
-                }],
-            ])
-            .into_connection();
+                }))
+            });
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app
@@ -551,12 +599,10 @@ mod tests {
     async fn update_status_returns_422() {
         init_test();
 
-        let database = MockDatabase::new(sea_orm::DatabaseBackend::Postgres)
-            .append_query_results::<ticket::Model, _, _>([vec![]])
-            .into_connection();
+        let mock_repo = MockTicketRepository::new();
 
         let app = app(AppState {
-            ticket_service: TicketService::new(database),
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
         });
 
         let response = app

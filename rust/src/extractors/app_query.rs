@@ -4,4 +4,4 @@ use crate::schemas::app_error::AppError;
 
 #[derive(FromRequestParts)]
 #[from_request(via(axum::extract::Query), rejection(AppError))]
-pub struct ValidatedQuery<T>(pub T);
+pub struct AppQuery<T>(pub T);

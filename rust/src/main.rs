@@ -1,26 +1,38 @@
 use anyhow::Context;
-use axum::{Router, extract::{MatchedPath, Request}, middleware::from_fn};
+use axum::{
+    Router,
+    extract::{MatchedPath, Request},
+    middleware::from_fn,
+};
 use tokio::signal;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::{app_state::AppState, config::AppConfig, routes::ticket_routes, schemas::app_error::log_app_errors};
+use crate::{
+    app_state::AppState, config::AppConfig, routes::ticket_routes,
+    schemas::app_error::log_app_errors,
+};
 
-mod schemas;
-mod routes;
-mod models;
-mod config;
 mod app_state;
-mod services;
+mod config;
 mod extractors;
+mod models;
+mod routes;
+mod schema;
+mod schemas;
+mod services;
+mod repository;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                format!("info,{}=debug,tower_http=debug,sea-orm=debug", env!("CARGO_CRATE_NAME")).into()
+                format!(
+                    "info,{}=debug,tower_http=debug,diesel=debug,diesel_async=debug",
+                    env!("CARGO_CRATE_NAME")
+                )
+                .into()
             }),
         )
         .with(tracing_subscriber::fmt::layer())
@@ -28,11 +40,14 @@ async fn main() -> anyhow::Result<()> {
 
     let app_config = AppConfig::build().context("Failed to load config.")?;
 
-    let app_state = AppState::build(&app_config).await.context("Failed to connect to the database.")?;
+    let app_state = AppState::build(&app_config)
+        .await
+        .context("Failed to connect to the database.")?;
 
     let app = app(app_state);
 
-    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", app_config.server.port)).await?;
+    let listener =
+        tokio::net::TcpListener::bind(format!("0.0.0.0:{}", app_config.server.port)).await?;
     tracing::info!("listening on {}", listener.local_addr()?);
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())

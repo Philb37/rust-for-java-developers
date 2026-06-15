@@ -1,37 +1,45 @@
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
-use sea_orm::{ConnectOptions, Database, DbErr};
+use diesel_async::{
+    AsyncPgConnection,
+    pooled_connection::{
+        AsyncDieselConnectionManager,
+        deadpool::{BuildError, Pool},
+    },
+};
 
-use crate::{config::AppConfig, services::ticket_service::{TicketService}};
+use deadpool::Runtime;
+
+use crate::{
+    config::AppConfig, repository::diesel_ticket_repository::DieselTicketRepository,
+    services::ticket_service::TicketService,
+};
 
 #[derive(Clone)]
 pub struct AppState {
-    pub ticket_service: TicketService
+    pub ticket_service: TicketService,
 }
 
+pub type DbPool = Pool<AsyncPgConnection>;
+
 impl AppState {
+    // TALK : Pass ownership the first time to trigger the moved error
+    pub async fn build(app_config: &AppConfig) -> Result<Self, BuildError> {
+        let manager =
+            AsyncDieselConnectionManager::<AsyncPgConnection>::new(&app_config.postgres.url);
 
-    // CONF : Pass ownership the first time to trigger the moved error
-    pub async fn build(app_config: &AppConfig) -> Result<Self, DbErr> {
+        let database = Pool::builder(manager)
+            .runtime(Runtime::Tokio1)
+            .max_size(5)
+            .create_timeout(Some(Duration::from_secs(10)))
+            .wait_timeout(Some(Duration::from_secs(10)))
+            .recycle_timeout(Some(Duration::from_mins(10)))
+            .build()?;
 
-        let mut connect_option = ConnectOptions::new(&app_config.postgres.url);
-        
-        connect_option.max_connections(5)
-            .connect_timeout(Duration::from_secs(10))
-            .acquire_timeout(Duration::from_secs(10))
-            .idle_timeout(Duration::from_mins(10))
-            .max_lifetime(Duration::from_mins(30))
-            .set_schema_search_path(&app_config.postgres.schema);
+        let ticket_repository = DieselTicketRepository::new(database);
 
-        let database = 
-            Database::connect(connect_option).await?;
+        let ticket_service = TicketService::new(Arc::new(ticket_repository));
 
-        let ticket_service = TicketService::new(database);
-
-        Ok(
-            AppState {
-                ticket_service
-            }
-        )
+        Ok(Self { ticket_service })
     }
 }

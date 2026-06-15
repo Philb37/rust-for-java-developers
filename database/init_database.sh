@@ -17,7 +17,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         status text not null,
         priority text not null,
         assignee text,
-        created_at timestamp with time zone default now()
+        created_at timestamp with time zone default now() not null
     );
 EOSQL
 

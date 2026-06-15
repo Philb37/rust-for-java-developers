@@ -1,2 +1,2 @@
 pub mod validated_json;
-pub mod validated_query;
+pub mod app_query;

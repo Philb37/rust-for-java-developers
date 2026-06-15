@@ -8,13 +8,13 @@ http:
   url: "{{baseurl}}/tickets/:id/status"
   params:
     - name: id
-      value: "1"
+      value: "2"
       type: path
   body:
     type: json
     data: |-
       {
-        "status": "IN_PROGRESS"
+        "status": "CLOSED"
       }
   auth: inherit
 
