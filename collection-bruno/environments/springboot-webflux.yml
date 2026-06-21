@@ -1,0 +1,4 @@
+name: springboot-webflux
+variables:
+  - name: baseurl
+    value: http://localhost:8083

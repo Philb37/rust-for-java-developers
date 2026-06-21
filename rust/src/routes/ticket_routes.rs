@@ -90,9 +90,7 @@ mod tests {
     use crate::{
         app,
         models::{
-            priority::Priority,
-            ticket::{NewTicket, Ticket, TicketUpdate},
-            ticket_status::TicketStatus,
+            priority::Priority, stat::Stat, ticket::{NewTicket, Ticket, TicketUpdate}, ticket_status::TicketStatus
         },
         repository::ticket_repository::MockTicketRepository,
         services::ticket_service::TicketService,
@@ -227,21 +225,24 @@ mod tests {
     async fn stats_returns_200() {
         init_test();
 
-        let tickets = vec![Ticket {
-            id: 1,
-            title: "Printer is on fire".to_string(),
-            description: None,
-            status: TicketStatus::Open,
-            priority: Priority::High,
-            assignee: None,
-            created_at: datetime!(2026-01-01 00:00 UTC),
-        }];
+        let stats = vec![
+            Stat {
+                priority: Some(Priority::High),
+                status: None,
+                count: 1,
+            },
+            Stat {
+                priority: None,
+                status: Some(TicketStatus::Open),
+                count: 1
+            },
+        ];
 
         let mut mock_repo = MockTicketRepository::new();
         mock_repo
-            .expect_list()
-            .with(eq(None), eq(None))
-            .returning(move |_, _| Ok(tickets.clone()));
+            .expect_stats()
+            .with()
+            .returning(move || Ok(stats.clone()));
 
         let app = app(AppState {
             ticket_service: TicketService::new(Arc::new(mock_repo)),

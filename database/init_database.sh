@@ -10,7 +10,7 @@ echo "Creating ticket table"
 
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    create table if not exists tickets (
+    create table if not exists public.tickets (
         id integer generated always as identity primary key,
         title text not null,
         description text,
@@ -19,6 +19,15 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         assignee text,
         created_at timestamp with time zone default now() not null
     );
+
+    create index idx_tickets_status
+    on public.tickets(status);
+
+    create index idx_tickets_priority
+    on public.tickets(priority);
+
+    create index idx_tickets_status_priority
+    on public.tickets(status, priority);
 EOSQL
 
 echo -e "\n"

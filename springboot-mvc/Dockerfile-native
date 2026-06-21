@@ -1,0 +1,29 @@
+# --- Maven: copied into the GraalVM image below, which ships no Maven of its own ---
+FROM maven:3.9-eclipse-temurin-21 AS maven
+
+# --- build: GraalVM native-image (Oracle Linux based, so glibc matches the runtime) ---
+FROM ghcr.io/graalvm/native-image-community:25 AS build
+
+# Bring Maven in and run it on the GraalVM JDK already present here (JAVA_HOME is set,
+# and the image has javac + gcc + native-image for the native compile).
+COPY --from=maven /usr/share/maven /usr/share/maven
+ENV PATH="/usr/share/maven/bin:${PATH}"
+
+WORKDIR /build
+
+COPY pom.xml .
+RUN mvn -B dependency:go-offline
+
+COPY src src
+RUN mvn -Pnative native:compile -DskipTests
+
+# --- runtime: same Oracle Linux family as the builder ---
+FROM oraclelinux:9-slim
+
+WORKDIR /app
+
+COPY --from=build /build/target/tickets /app/tickets
+
+EXPOSE 8082
+
+ENTRYPOINT ["/app/tickets"]
