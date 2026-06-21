@@ -2,11 +2,47 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-TicketsApplication<tickets>",
+            "name": "Spring Boot - MVC - TicketsApplication<tickets>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/springboot-mvc",
+            "mainClass": "com.example.tickets.TicketsApplication",
+            "projectName": "MVC tickets"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot - Webflux - TicketsApplication<tickets>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/springboot-webflux",
+            "mainClass": "com.example.webflux.tickets.TicketsApplication",
+            "projectName": "Webflux tickets"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-TicketsApplication<com.example-tickets>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "mainClass": "com.example.tickets.TicketsApplication",
-            "projectName": "tickets",
+            "projectName": "com.example-tickets",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-TicketsApplication<tickets-mvc>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.tickets.TicketsApplication",
+            "projectName": "tickets-mvc",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-TicketsApplication<tickets-webflux>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.webflux.tickets.TicketsApplication",
+            "projectName": "tickets-webflux",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

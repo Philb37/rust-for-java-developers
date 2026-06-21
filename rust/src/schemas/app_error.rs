@@ -29,6 +29,8 @@ pub enum AppError {
     PoolError(#[from] PoolError),
     #[error("Something went wrong in the backend")]
     QueryError(#[from] diesel::result::Error),
+    #[error("Something went wrong in the backend")]
+    StatsError,
     #[error("Ticket {0} not found")]
     TicketNotFound(i32),
 }
@@ -66,6 +68,13 @@ impl IntoResponse for AppError {
                 )
             }
             AppError::PoolError(_) | AppError::QueryError(_) => {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Something went wrong in the backend".to_string(),
+                    Some(self), // We log
+                )
+            }
+            AppError::StatsError => {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "Something went wrong in the backend".to_string(),

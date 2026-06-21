@@ -8,3 +8,7 @@ dist
 .vite-inspect
 .remote-assets
 components.d.ts
+
+# GraalVM PGO profile (build artifact)
+default.iprof
+**/default.iprof

@@ -1,4 +1,120 @@
 services:
+  rust-app:
+    build:
+      context: ./rust
+    image: rust-tickets:local
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 2gb
+    container_name: rust-app
+    environment:
+      - RUST_LOG=WARN
+      - APP_POSTGRES__URL=postgresql://postgres:password@database:5432/intro-to-rust
+    ports:
+      - "1337:1337"
+    networks:
+      - backend-network
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  springboot-mvc-app:
+    build:
+      context: ./springboot-mvc
+    image: springboot-mvc-tickets:local
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 2gb
+    container_name: springboot-mvc-app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/intro-to-rust
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_R2DBC_CORE=WARN
+      - SERVER_PORT=8081
+    ports:
+      - "8081:8081"
+    networks:
+      - backend-network
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  springboot-mvc-native-app:
+    build:
+      context: ./springboot-mvc
+      dockerfile: Dockerfile-native
+    image: springboot-mvc-native-tickets:local
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 2gb
+    container_name: springboot-mvc-native-app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/intro-to-rust
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_R2DBC_CORE=WARN*
+      - SERVER_PORT=8082
+    ports:
+      - "8082:8082"
+    networks:
+      - backend-network
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  springboot-webflux-app:
+    build:
+      context: ./springboot-webflux
+    image: springboot-webflux-tickets:local
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 2gb
+    container_name: springboot-webflux-app
+    environment:
+      - SPRING_R2DBC_URL=r2dbc:postgresql://database:5432/intro-to-rust
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_R2DBC_CORE=WARN
+      - SERVER_PORT=8083
+    ports:
+      - "8083:8083"
+    networks:
+      - backend-network
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  springboot-webflux-native-app:
+    build:
+      context: ./springboot-webflux
+      dockerfile: Dockerfile-native
+    image: springboot-webflux-native-tickets:local
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 2gb
+    container_name: springboot-webflux-native-app
+    environment:
+      - SPRING_R2DBC_URL=r2dbc:postgresql://database:5432/intro-to-rust
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_R2DBC_CORE=WARN
+      - SERVER_PORT=8084
+    ports:
+      - "8084:8084"
+    networks:
+      - backend-network
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
   database:
     image: postgres:18
     container_name: pg_database
@@ -6,18 +122,77 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=intro-to-rust
       - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
     volumes:
       - ./database:/docker-entrypoint-initdb.d:ro
       - database-data:/var/lib/postgresql
+    networks:
+      - backend-network
     restart: unless-stopped
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+      
+  telegraf:
+    image: telegraf:1.37
+    container_name: telegraf
+    user: root
+    ports:
+      - '9273:9273'
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - backend-network # so Prometheus can scrape telegraf:9273
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.4
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.wal-compression'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+      - '--web.enable-admin-api'
+    ports:
+      - "9090:9090"
+    networks:
+      - backend-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.6
+    container_name: grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      - backend-network
+    restart: unless-stopped
 
 volumes:
   database-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  backend-network:
+    driver: bridge

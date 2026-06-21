@@ -63,14 +63,14 @@ impl TicketService {
     // TALK : Doing this in memory is bad practice, it should be done in SQL directly.
     // The goal is to showcase different ways to do something similar to the springboot project.
     pub async fn stats(&self) -> Result<StatsResponse, AppError> {
-        let tickets = self.ticket_repository.list(None, None).await?;
+        // let tickets = self.ticket_repository.list(None, None).await?;
 
-        let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
+        // let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
 
-        for ticket in &tickets {
-            *by_status.entry(ticket.status).or_insert(0) += 1;
-            *by_priority.entry(ticket.priority).or_insert(0) += 1;
-        }
+        // for ticket in &tickets {
+        //     *by_status.entry(ticket.status).or_insert(0) += 1;
+        //     *by_priority.entry(ticket.priority).or_insert(0) += 1;
+        // }
 
         // TALK : Alternative to test
         // let (by_status, by_priority) = tickets.iter()
@@ -79,6 +79,23 @@ impl TicketService {
         //         *acc.1.entry(ticket.priority).or_insert(0) += 1;
         //         acc
         //     });
+
+        let stats = self.ticket_repository.stats().await?;
+
+        let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
+        
+        for stat in &stats {
+
+            match (stat.priority, stat.status) {
+                (Some(priority), None) => { by_priority.insert(priority, stat.count); },
+                (None, Some(status)) => { by_status.insert(status, stat.count); },
+                _ => {
+                    return Err(AppError::QueryError(
+                        diesel::result::Error::AlreadyInTransaction,
+                    ));
+                }
+            }
+        }
 
         Ok(StatsResponse {
             by_status,
@@ -95,7 +112,10 @@ mod tests {
     use time::macros::datetime;
 
     use crate::{
-        models::ticket::{NewTicket, Ticket, TicketUpdate},
+        models::{
+            stat::Stat,
+            ticket::{NewTicket, Ticket, TicketUpdate},
+        },
         repository::ticket_repository::MockTicketRepository,
     };
 
@@ -396,23 +416,24 @@ mod tests {
     async fn stats_ok() {
         init_test();
 
-        let title = "Printer is on fire".to_string();
-
-        let tickets = vec![Ticket {
-            id: 1,
-            title: title.clone(),
-            description: None,
-            status: TicketStatus::Open,
-            priority: Priority::High,
-            assignee: None,
-            created_at: datetime!(2026-01-01 00:00 UTC),
-        }];
+        let stats = vec![
+            Stat {
+                priority: Some(Priority::High),
+                status: None,
+                count: 1,
+            },
+            Stat {
+                priority: None,
+                status: Some(TicketStatus::Open),
+                count: 1
+            },
+        ];
 
         let mut mock_repo = MockTicketRepository::new();
         mock_repo
-            .expect_list()
-            .with(eq(None), eq(None))
-            .returning(move |_, _| Ok(tickets.clone()));
+            .expect_stats()
+            .with()
+            .returning(move || Ok(stats.clone()));
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
@@ -437,9 +458,9 @@ mod tests {
 
         let mut mock_repo = MockTicketRepository::new();
         mock_repo
-            .expect_list()
-            .with(eq(None), eq(None))
-            .returning(move |_, _| {
+            .expect_stats()
+            .with()
+            .returning(|| {
                 Err(AppError::QueryError(
                     diesel::result::Error::AlreadyInTransaction,
                 ))

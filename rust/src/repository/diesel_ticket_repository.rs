@@ -1,13 +1,11 @@
 use crate::{
     app_state::DbPool, models::{
-        priority::Priority,
-        ticket::{NewTicket, Ticket, TicketUpdate},
-        ticket_status::TicketStatus,
+        priority::Priority, stat::Stat, ticket::{NewTicket, Ticket, TicketUpdate}, ticket_status::TicketStatus
     }, repository::ticket_repository::TicketRepository, schema::tickets, schemas::app_error::AppError
 };
 
 use diesel::{
-    ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper, dsl::insert_into, dsl::update,
+    ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper, dsl::{insert_into, update}, sql_query,
 };
 use diesel_async::RunQueryDsl;
 
@@ -71,9 +69,21 @@ impl TicketRepository for DieselTicketRepository {
 
         Ok(
             query.select(Ticket::as_select())
+            .limit(100)
             .get_results(&mut connection)
             .await?
         )
+    }
+
+    async fn stats(&self) -> Result<Vec<Stat>, AppError> {
+
+        let mut connection = self.database.get().await?;
+
+        let stats = sql_query("select status, priority, count(*) from public.tickets group by grouping sets ((status), (priority))")
+            .get_results(&mut connection)
+            .await?;
+
+        Ok(stats)
     }
 
     async fn update_status(&self, id: i32, ticket_update: TicketUpdate) -> Result<Option<Ticket>, AppError> {

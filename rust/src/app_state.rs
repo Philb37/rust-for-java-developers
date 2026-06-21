@@ -28,11 +28,13 @@ impl AppState {
         let manager =
             AsyncDieselConnectionManager::<AsyncPgConnection>::new(&app_config.postgres.url);
 
+        let pool = &app_config.postgres.pool;
+
         let database = Pool::builder(manager)
             .runtime(Runtime::Tokio1)
-            .max_size(5)
-            .create_timeout(Some(Duration::from_secs(10)))
-            .wait_timeout(Some(Duration::from_secs(10)))
+            .max_size(pool.max_size)
+            .create_timeout(Some(Duration::from_secs(pool.create_timeout_secs)))
+            .wait_timeout(Some(Duration::from_secs(pool.acquire_timeout_secs)))
             .recycle_timeout(Some(Duration::from_mins(10)))
             .build()?;
 

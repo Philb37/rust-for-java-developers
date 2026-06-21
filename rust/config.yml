@@ -2,6 +2,11 @@
 postgres:
   url: postgresql://postgres:password@localhost:5432/intro-to-rust
   schema: public
+  # Connection pool — kept equivalent to Spring's spring.r2dbc.pool.* settings
+  pool:
+    max_size: 10            # deadpool max_size  <-> spring.r2dbc.pool.max-size
+    acquire_timeout_secs: 10 # deadpool wait_timeout   <-> spring.r2dbc.pool.max-acquire-time
+    create_timeout_secs: 10  # deadpool create_timeout <-> spring.r2dbc.pool.max-create-connection-time
 
 # Server
 server:
