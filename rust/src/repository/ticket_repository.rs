@@ -1,8 +1,6 @@
 use crate::{
     models::{
-        priority::Priority,
-        ticket::{NewTicket, Ticket, TicketUpdate},
-        ticket_status::TicketStatus,
+        priority::Priority, stat::Stat, ticket::{NewTicket, Ticket, TicketUpdate}, ticket_status::TicketStatus
     }, schemas::app_error::AppError
 };
 
@@ -16,5 +14,6 @@ pub trait TicketRepository: Send + Sync {
         status: Option<TicketStatus>,
         priority: Option<Priority>,
     ) -> Result<Vec<Ticket>, AppError>;
+    async fn stats(&self) -> Result<Vec<Stat>, AppError>;
     async fn update_status(&self, id: i32, ticket_update: TicketUpdate) -> Result<Option<Ticket>, AppError>;
 }

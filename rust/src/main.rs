@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use anyhow::Context;
 use axum::{
     Router,
@@ -25,6 +27,9 @@ mod repository;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+
+    let start = Instant::now();
+
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -48,7 +53,10 @@ async fn main() -> anyhow::Result<()> {
 
     let listener =
         tokio::net::TcpListener::bind(format!("0.0.0.0:{}", app_config.server.port)).await?;
+
+    tracing::info!("Started rust-app in {:?}.", start.elapsed());
     tracing::info!("listening on {}", listener.local_addr()?);
+
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;

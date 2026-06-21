@@ -15,7 +15,15 @@ pub struct ServerInfo {
 #[derive(Serialize, Deserialize)]
 pub struct PostgreSQLInfo {
     pub url: String,
-    pub schema: String
+    pub schema: String,
+    pub pool: PoolConfig
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PoolConfig {
+    pub max_size: usize,
+    pub acquire_timeout_secs: u64,
+    pub create_timeout_secs: u64
 }
 
 impl AppConfig {
@@ -26,6 +34,7 @@ impl AppConfig {
             // TALK : Enables checking env variables in a real environment (not local), for example APP_SERVER__PORT would map to server.port.
             .add_source(
                 config::Environment::with_prefix("APP")  // only APP_* vars are read
+                    .prefix_separator("_") 
                     .separator("__")                     // "__" maps to the yaml nesting dot
             )
             .build()?;

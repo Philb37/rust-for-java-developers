@@ -1,0 +1,4 @@
+name: springboot-local
+variables:
+  - name: baseurl
+    value: http://localhost:8085

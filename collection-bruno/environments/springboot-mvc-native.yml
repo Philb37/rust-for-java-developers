@@ -1,0 +1,4 @@
+name: springboot-mvc-native
+variables:
+  - name: baseurl
+    value: http://localhost:8082
