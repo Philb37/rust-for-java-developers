@@ -10,6 +10,7 @@ It needs to be between a beginner and intermediate talk in order not to go too d
 sqlx is like flyway
 SeaORM / Diesel
 What's good in rust is compile time checks
+- Zero cost abstraction
 
 | Rust          | Java Springboot   | Type of feature                   |
 |---------------|-------------------|-----------------------------------|

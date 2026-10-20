@@ -37,20 +37,6 @@ Beyond teaching the language, the repo also **benchmarks** the implementations a
 └── docker-compose.yml     # the whole stack (apps + Postgres + observability)
 ```
 
-### The benchmark targets
-
-Two Spring codebases — the blocking "before" and the reactive rewrite — each built as a JVM jar **and** a GraalVM native image, plus the Rust app. Five targets in all:
-
-| Target                       | Stack                                          |
-|------------------------------|------------------------------------------------|
-| `springboot-mvc`             | Spring MVC + Spring Data JPA (JVM)             |
-| `springboot-mvc-native`      | Spring MVC + Spring Data JPA (GraalVM native)  |
-| `springboot-webflux`         | Spring WebFlux + R2DBC (JVM)                    |
-| `springboot-webflux-native`  | Spring WebFlux + R2DBC (GraalVM native)        |
-| `rust`                       | Axum + Diesel-async + deadpool (Tokio)         |
-
----
-
 ## Rust ↔ Java parallels
 
 The core teaching device (full version in [`goals.md`](goals.md)):
@@ -82,7 +68,7 @@ docker compose up -d
 | Service                          | Port  | Stack                                      |
 |----------------------------------|-------|--------------------------------------------|
 | `rust-app`                       | 1337  | Axum + Diesel                              |
-| `springboot-mvc-app`             | 8081  | Spring MVC + JPA (JVM)                      |
+| `springboot-mvc-app`             | 8081  | Spring MVC + JPA (JVM)                     |
 | `springboot-mvc-native-app`      | 8082  | Spring MVC + JPA (GraalVM native)          |
 | `springboot-webflux-app`         | 8083  | Spring WebFlux + R2DBC (JVM)               |
 | `springboot-webflux-native-app`  | 8084  | Spring WebFlux + R2DBC (GraalVM native)    |
@@ -98,6 +84,20 @@ On first start, the database is created, the `tickets` table + indexes are built
 ## Benchmark
 
 The benchmark compares the implementations on **throughput, latency (p90/p95/p99 per endpoint), failure rate, and CPU/memory** under load.
+
+### The benchmark targets
+
+Two Spring codebases — the blocking "before" and the reactive rewrite — each built as a JVM jar **and** a GraalVM native image, plus the Rust app. Five targets in all:
+
+| Target                       | Stack                                          |
+|------------------------------|------------------------------------------------|
+| `springboot-mvc`             | Spring MVC + Spring Data JPA (JVM)             |
+| `springboot-mvc-native`      | Spring MVC + Spring Data JPA (GraalVM native)  |
+| `springboot-webflux`         | Spring WebFlux + R2DBC (JVM)                    |
+| `springboot-webflux-native`  | Spring WebFlux + R2DBC (GraalVM native)        |
+| `rust`                       | Axum + Diesel-async + deadpool (Tokio)         |
+
+---
 
 ### Methodology
 

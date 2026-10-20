@@ -10,7 +10,7 @@ use crate::{
     schemas::create_ticket_request::CreateTicketRequest,
 };
 
-#[derive(Queryable, Selectable, AsChangeset, Identifiable, Debug)]
+#[derive(Queryable, Selectable, Identifiable, Debug)]
 #[diesel(table_name = crate::schema::tickets)]
 #[diesel(check_for_backend(Pg))]
 #[cfg_attr(test, derive(Clone))]
