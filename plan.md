@@ -2,22 +2,43 @@
 
 Present myself (now or later ?)
 
-I started with python, switched to C, then C#, then Java and recently learned Rust on my free time.
-
-I was 
+I've been working with java for over 7 years now. I've seen (and done) a lot of bad code, bad practices. As an example in my last project 90% of the errors we had in production (and there was a lot) were one of those :
+- NPE
+- 400 Bad Request (Most of the time because we sent a null value)
+- Trying to store a null value in DB
+- Singleton with a private field being updated by everyone
+- Timeouts
+- 500 Internal Server errors from other API calls
 
 # 2. I'll do you one better, why is Rust ?
 
 [!NOTE] Explain what is Rust, why it came to be, what it solves.
 
-low level language but not so far from high ones.
+"It's ridiculous that we computer people couldn't even make an elevator that works without crashing!" Graydon Hoare
 
-Borrow checker
-Zero cost abstraction
-Compile time checks
-Type system
+Graydon Hoare suspected his elevator kept breaking down because of some memory errors likely coming from the C or C++ software. This is what triggered the creation of the Rust Programming Language. He went on a journey at his job at Mozilla to create a concurrent memory safe (without garbage collector) language.
 
-what are it's strenghs and weaknesses -> link to the next part
+Rust is a low level language that offers a lot of features, some of which we don't see in other languages, some of which are similar to high level languages :
+
+- Ownership and Borrowing
+  - Show code examples
+- Mutability
+  - Show code examples
+- Memory Safety without GC
+  - go back to the ownership and borrowing example and explain
+- Strong Type System (Generics / Trait (bound))
+- No exception, no NULL values
+  - Result
+  - Option
+- Compile time checks
+- Zero cost abstraction
+  - Iterators
+  - Generics
+  - Ownership / Borrowing / Lifetimes
+  - Traits
+  - Result / Option (Enums in general)
+
+what are it's strengths and weaknesses -> link to the next part
 
 Rust is still relatively new and moves quick, it has a release cycle of 6 weeks.
 Every night a new release is created -> Nightly build
@@ -26,7 +47,7 @@ Every six week after a beta a stable version is created from the beta -> Stable 
 
 [!NOTE] define crates
 
-Knowing that Rust moves quick, every crates / framework does too. A lot of crates are still in 0.X versions.
+Knowing that Rust moves quick, every crates / framework does too. A lot of crates are still in 0.X versions, some stop being maintained and are replaced by newer ones.
 
 # 3. Is Rust really hard ?
 
@@ -97,9 +118,14 @@ I've been working with java for over 7 years now. I've seen (and done) a lot of 
 - Trying to store a null value in DB (NPE variant)
 - Singleton with a private field being updated by everyone
 
+
+
 We could argue that :
 - Timeouts
 - 500 Internal Server errors
+
+
+, which can obviously also happen in Rust. But by design Rust will mitigate problems. No more 1 billion dollar mistakes (NPE for those who didn't get the joke).
 
 Could also be avoided with Rust since the same rules applies, the language is by design more robust and safer to use.
 

@@ -16,6 +16,8 @@ use validator::ValidationErrors;
 
 use crate::schemas::app_response::AppJson;
 
+// This is the equivalent of @ExceptionHandler in Springboot and @ServerExceptionMapper in Quarkus
+
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
     // The request body contained invalid JSON

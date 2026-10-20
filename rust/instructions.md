@@ -1,15 +1,16 @@
-cargo new rust-project
-cargo add axum --features macros
-cargo add tower config tracing anyhow thiserror
-cargo add tower_http --features trace
-cargo add tokio --features full
-cargo add time --features serde,serde-well-known,macros,formatting,parsing
-cargo add serde --features derive
+cargo new tickets
+
 cargo add diesel --features postgres_backend,time
 cargo add diesel-async --features tokio-postgres,deadpool,postgres
 cargo add deadpool@0.13 --features rt_tokio_1
-cargo add tracing_subscriber --features env-filter
-cargo add validator --features derive
-cargo add --dev serde_json http_body_util
+cargo add serde --features derive
 
-create project structure
+cargo add axum --features macros
+cargo add tower config tracing anyhow thiserror async-trait
+cargo add tower_http --features trace
+cargo add tokio --features full
+cargo add time --features serde,serde-well-known,macros,formatting,parsing
+cargo add tracing-subscriber --features env-filter
+cargo add validator --features derive
+
+cargo add --dev serde_json http_body_util mockall

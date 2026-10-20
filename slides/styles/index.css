@@ -1,0 +1,116 @@
+/* ============================================================
+   Talk theme
+   gradient: linear-gradient(315deg, #C94EE5, #E39D41)
+   Titles + bold use the gradient's MIDPOINT color (solid), not the
+   gradient itself. Boxes keep the gradient tint; their text is grey.
+   NEVER colored: code blocks and the rustc / stdout output boxes.
+   ============================================================ */
+
+:root {
+  --talk-grad: linear-gradient(315deg, #c94ee5, #e39d41);
+  --talk-grad-tint: linear-gradient(315deg, rgba(201, 78, 229, 0.13), rgba(227, 157, 65, 0.13));
+  --talk-purple: #c94ee5;
+  --talk-amber: #e39d41;
+  --talk-mid: #d67693;   /* midpoint of the gradient — titles + bold emphasis */
+  --talk-ink: #3f3f46;   /* dark grey — second titles / bold inside boxes */
+  --talk-slate: #52525b; /* grey — body text inside boxes */
+}
+
+/* --- Titles: solid midpoint color (emoji-safe, no gradient clipping) --- */
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout .grad {
+  color: var(--talk-mid);
+  -webkit-text-fill-color: var(--talk-mid);
+}
+
+/* --- Headings font --- */
+.slidev-layout h1,
+.slidev-layout h2 {
+  font-family: 'Space Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* --- Consistent slide title: centered, at the top --- */
+.slidev-layout .top-title {
+  text-align: center;
+  font-size: 1.9rem;
+  line-height: 1.15;
+  margin: 0 0 1.4rem;
+}
+
+/* --- Emphasis (bold) in prose: solid midpoint color --- */
+.slidev-layout strong,
+.slidev-layout b {
+  color: var(--talk-mid);
+  -webkit-text-fill-color: var(--talk-mid);
+}
+
+/* --- Second titles / sub-labels: dark grey, no color --- */
+.slidev-layout .subtitle {
+  color: var(--talk-ink);
+  -webkit-text-fill-color: var(--talk-ink);
+  font-weight: 700;
+}
+
+/* --- Boxes: keep the tint/border, text inside is grey --- */
+.slidev-layout [class*="bg-primary/"] {
+  background: var(--talk-grad-tint) !important;
+  border-color: rgba(201, 78, 229, 0.30) !important;
+  color: var(--talk-slate);
+}
+/* bold inside a box reads as a label → dark grey, not the mid color */
+.slidev-layout [class*="bg-primary/"] strong,
+.slidev-layout [class*="bg-primary/"] b {
+  color: var(--talk-ink);
+  -webkit-text-fill-color: var(--talk-ink);
+}
+
+/* Selectable option — tinted like every other box; the choice gets a mid border */
+.slidev-layout .pick {
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(201, 78, 229, 0.30);
+  background: var(--talk-grad-tint);
+  color: var(--talk-slate);
+  transition: all 0.25s ease;
+}
+.slidev-layout .pick--on {
+  border-color: var(--talk-mid);
+  color: var(--talk-ink);
+}
+
+/* Mutability slide: stack both outputs in one grid cell so the box is always
+   sized to the wider (error) one and never resizes between clicks. */
+.slidev-layout .mut-output {
+  display: grid;
+}
+.slidev-layout .mut-output > .code-output {
+  grid-area: 1 / 1;
+}
+
+/* Check mark used in the "if it compiles" checklist */
+.slidev-layout .grad-check {
+  color: var(--talk-mid) !important;
+  -webkit-text-fill-color: var(--talk-mid) !important;
+  background: none;
+  margin-right: 0.35rem;
+}
+
+/* ============================================================
+   Hard opt-out: code + program output keep their own colors.
+   ============================================================ */
+.slidev-layout code,
+.slidev-layout pre,
+.slidev-layout .shiki,
+.slidev-layout .shiki *,
+.slidev-layout .code-output,
+.slidev-layout .code-output * {
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+  background-image: none;
+}
+.slidev-layout .code-output {
+  background-image: revert !important;
+}

@@ -48,7 +48,7 @@ public class TicketController {
     }
 
     // GET /tickets/{id}
-     @GetMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<TicketResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.getById(id));
     }

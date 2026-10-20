@@ -56,6 +56,15 @@ const STARTUP_S = {
   'springboot-webflux-native': 0.27,
 };
 
+// Approximate build times in seconds, measured by hand (not k6). Rust is shown
+// twice: full workspace build vs. rebuilding only the ticket crate.
+const BUILD_S = [
+  { label: 'rust (full)', value: 27 },
+  { label: 'rust (ticket crate)', value: 3 },
+  { label: 'mvc-jvm', value: 3 },
+  { label: 'webflux-jvm', value: 3 },
+];
+
 const read = (vus, file) =>
   JSON.parse(readFileSync(join(summariesDir, `summary-${vus}-${file}.json`), 'utf8'));
 const benchmark = (m) => m.metrics['http_req_duration{scenario:benchmark}'].values;
@@ -85,8 +94,7 @@ function niceMax(v) {
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const kFmt = (v) => (v >= 1000 ? `${v / 1000}k` : String(Math.round(v)));
 
-function chart({ title, yLabel, series, fmt, colors = COLORS, legend = true, log = false, axisFmt = kFmt }) {
-  const cats = TARGETS.map((t) => t.label);
+function chart({ title, yLabel, series, fmt, colors = COLORS, legend = true, log = false, axisFmt = kFmt, cats = TARGETS.map((t) => t.label) }) {
   const W = 860, H = 450, m = { top: 70, right: 22, bottom: 64, left: 72 };
   const pw = W - m.left - m.right, ph = H - m.top - m.bottom;
   const gW = pw / cats.length, groupW = gW * 0.72, bw = groupW / series.length;
@@ -155,6 +163,7 @@ const charts = {
   'memory.svg': chart({ title: 'Peak memory under load (MB) — lower is better', yLabel: 'MB', series: oneSeries(PEAK_MEM_MB), fmt: (v) => Math.round(v), colors: ['#4292c6'], legend: false }),
   'cpu.svg': chart({ title: 'Peak CPU under load (cores, cap = 4) — lower is leaner', yLabel: 'CPU cores', series: oneSeries(PEAK_CPU), fmt: (v) => v.toFixed(1), colors: ['#4292c6'], legend: false }),
   'startup.svg': chart({ title: 'Startup: process → ready — lower is better (log scale)', yLabel: '', series: oneSeries(STARTUP_S), fmt: timeLabel, axisFmt: timeLabel, colors: ['#4292c6'], legend: false, log: true }),
+  'build.svg': chart({ title: 'Build time — lower is better', yLabel: '', series: [{ label: '', values: BUILD_S.map((b) => b.value) }], cats: BUILD_S.map((b) => b.label), fmt: (v) => `~${v} s`, axisFmt: (v) => `${v} s`, colors: ['#4292c6'], legend: false }),
 };
 
 for (const [name, svg] of Object.entries(charts)) {
