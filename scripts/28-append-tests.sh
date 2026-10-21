@@ -1,4 +1,4 @@
-cd ./rust-temp/src
+cd ./rust/src
 
 # Appends the #[cfg(test)] modules to the end of the service and routes files.
 # Run this once the implementations are in place (after snippet 27).

@@ -1,4 +1,4 @@
-cd ./rust-temp/src
+cd ./rust/src
 
 # Cargo dependencies (axum web stack + config + dev test helpers)
 cargo add anyhow config thiserror tower tracing

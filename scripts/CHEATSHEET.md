@@ -1,7 +1,7 @@
 # Live-coding cheat sheet
 
 Scripts and snippets share one numbering, so the next number always tells you what to do.
-Run scripts from the repo root (`bash scripts/NN-*.sh`). They `cd` into `rust-temp/src` themselves.
+Run scripts from the repo root (`bash scripts/NN-*.sh`). They `cd` into `rust/src` themselves.
 To expand a snippet, type its prefix (`NN-…`) in the right spot and pick it from the completion list.
 
 - **seed**: the script left a `// NN-…` line in the file. Replace that line with the snippet.

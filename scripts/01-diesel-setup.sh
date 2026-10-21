@@ -1,4 +1,4 @@
-cd ./rust-temp/src
+cd ./rust/src
 
 # Cargo dependencies
 cargo add diesel --features postgres_backend,time
