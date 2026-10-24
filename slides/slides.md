@@ -35,21 +35,21 @@ The last comment block of each slide will be treated as slide notes. It will be 
 -->
 
 ---
-title: "Who am I?"
+title: "Qui suis-je ?"
 layout: center
 class: text-center
 ---
 
-# Who am I ?
+# Qui suis-je ?
 
 <div class="whoami">
   <div class="whoami-name">Philippe Billard</div>
   <div class="whoami-bar"></div>
-  <div class="whoami-role">Tech Lead · 7+ years of experience</div>
+  <div class="whoami-role">Tech Lead · plus de 7 ans d'expérience</div>
   <div class="whoami-tags">
-    <span>Developer</span>
+    <span>Développeur</span>
     <span>Cloud</span>
-    <span>Data / AI</span>
+    <span>Data / IA</span>
   </div>
 </div>
 
@@ -97,35 +97,35 @@ class: text-center
 </style>
 
 ---
-title: "My problem"
+title: "Mon problème"
 layout: topic
 ---
 
-<div class="text-center opacity-70 mb-6">I'm tired of those kind of errors</div>
+<div class="text-center opacity-70 mb-6">J'en ai assez de ce genre d'erreurs</div>
 
 <div class="flex flex-col items-center gap-2 max-w-2xl mx-auto w-full">
   <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">Null Pointer Exception</div>
-  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">400 Bad Request (most of the time because we sent a null value)</div>
-  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">Trying to store a null value in DB</div>
-  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">Singleton with a private field being updated by everyone</div>
+  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">400 Bad Request</div>
+  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">Tentative d'enregistrer une mauvaise valeur en base</div>
+  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">Singleton avec un champ privé modifié par tout le monde</div>
   <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">Timeouts</div>
-  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">500 Internal Server errors to external APIs</div>
+  <div class="px-5 py-2.5 rounded-lg border border-primary/20 bg-primary/10 w-full text-center">Erreurs 500 Internal Server Error vers des API externes</div>
 </div>
 
 <section-label name="Intro" />
 <slide-number/>
 
 <!-- 
-I've been working with java for over 7 years now. I've seen (and done) a lot of bad code, bad practices. As an example in my last project 90% of the errors we had in production (and there was a lot) were one of those :
+Je travaille avec Java depuis plus de 7 ans maintenant. J'ai vu (et écrit) beaucoup de mauvais code et de mauvaises pratiques. Par exemple, sur mon dernier projet, 90 % des erreurs que nous avions en production (et il y en avait beaucoup) faisaient partie de celles-ci :
 -->
 
 ---
-title: "Why Rust?"
+title: "Pourquoi Rust ?"
 layout: center
 class: text-center
 ---
 
-<SectionDivider index="01" name="Why Rust ?" />
+<SectionDivider index="01" name="Pourquoi Rust ?" />
 
 <slide-number/>
 
@@ -137,94 +137,94 @@ layout: quote
 <div class="max-w-3xl mx-auto text-center">
 
 <p class="text-3xl leading-snug italic">
-“It’s ridiculous that we computer people couldn’t even make an elevator that works without crashing!”
+« C'est ridicule que nous, les informaticiens, ne soyons même pas capables de faire un ascenseur qui fonctionne sans planter ! »
 </p>
 
 <p class="mt-8 text-xl opacity-60 not-italic">
-— Graydon Hoare, creator of Rust
+— Graydon Hoare, créateur de Rust
 </p>
 
 </div>
 
-<section-label name="Why Rust" />
+<section-label name="Pourquoi Rust" />
 <slide-number/>
 
 <!--
-Graydon Hoare suspected his apartment elevator kept breaking down because of memory
-errors — likely coming from its C or C++ software. That frustration was the spark for
-Rust: a concurrent, memory-safe language without a garbage collector, which he set out
-to build during his time at Mozilla.
+Graydon Hoare soupçonnait que l'ascenseur de son immeuble tombait sans cesse en panne à cause
+d'erreurs mémoire — probablement dans son logiciel écrit en C ou C++. Cette frustration a été
+l'étincelle de Rust : un langage concurrent, sûr au niveau mémoire et sans garbage collector,
+qu'il a entrepris de construire pendant son passage chez Mozilla.
 -->
 
 ---
-title: "The basics"
+title: "Les bases"
 layout: center
 class: text-center
 ---
 
-<SectionDivider index="03" name="The basics 🏗️" />
+<SectionDivider index="03" name="Les bases 🏗️" />
 
 <slide-number/>
 
 ---
-title: "Type system, traits & generics"
+title: "Système de types, traits & génériques"
 layout: topic
 ---
 
 <div class="grid grid-cols-2 gap-4 auto-rows-fr max-w-4xl mx-auto w-full">
   <div v-click="1" class="rounded-lg p-4" style="border:1px solid rgba(201,78,229,0.25)">
-    <div class="subtitle mb-2">Built-in types</div>
-    <div class="text-[#52525b]">Boolean · Numeric (int &amp; float) · Char, str, String · Tuple · Array</div>
+    <div class="subtitle mb-2">Types natifs</div>
+    <div class="text-[#52525b]">Boolean · Numerics (int &amp; float) · Char, str, String · Tuple · Array</div>
   </div>
   <div v-click="3" class="rounded-lg p-4" style="border:1px solid rgba(201,78,229,0.25)">
     <div class="subtitle mb-2">Trait(s)</div>
-    <div class="text-[#52525b]">Shared behavior &amp; composition — no inheritance</div>
+    <div class="text-[#52525b]">Comportement partagé &amp; composition — pas d'héritage</div>
   </div>
   <div v-click="2" class="rounded-lg p-4" style="border:1px solid rgba(201,78,229,0.25)">
-    <div class="subtitle mb-2">User-defined types</div>
+    <div class="subtitle mb-2">Types définis par l'utilisateur</div>
     <div class="text-[#52525b]">Struct · Enum</div>
   </div>
   <div v-click="4" class="rounded-lg p-4" style="border:1px solid rgba(201,78,229,0.25)">
-    <div class="subtitle mb-2">Generics</div>
-    <div class="text-[#52525b]">Like Java — but the approaches differ</div>
+    <div class="subtitle mb-2">Génériques</div>
+    <div class="text-[#52525b]">Comme en Java — mais les approches diffèrent</div>
   </div>
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 <!--
-Let's start at the beginning: Rust has a really good and strong type system.
-Like many other languages it has a lot of types, although it does not handle them the same way.
+Commençons par le commencement : Rust a un système de types vraiment bon et solide.
+Comme beaucoup d'autres langages, il possède de nombreux types, mais il ne les gère pas de la même façon.
 
-[click] We have Boolean, Numeric types (not really the same as Java), String types (again, not really the same), Tuple, Arrays.
+[click] On a les booléens, les types numériques (pas vraiment les mêmes qu'en Java), les types chaînes de caractères (là encore, pas vraiment les mêmes), les tuples, les tableaux.
 
-[click] But contrary to Java, we have no class. The equivalent would be a Struct, a user-defined type, like enums.
+[click] Mais contrairement à Java, il n'y a pas de classe. L'équivalent serait une Struct, un type défini par l'utilisateur, comme les enums.
 
-[click] No class, no inheritance. In Rust we only have Trait(s) that define shared behavior and enable composition.
+[click] Pas de classe, pas d'héritage. En Rust, on a uniquement des Trait(s) qui définissent un comportement partagé et permettent la composition.
 
-[click] Like Java there are generics, but the two approaches differ wildly. I won't get into it right now, just know that it exists. 
+[click] Comme en Java, il y a des génériques, mais les deux approches sont très différentes. Je ne vais pas rentrer dans le détail maintenant, retenez simplement que ça existe.
 -->
 
 ---
-title: "No null, no exceptions"
+title: "Pas de null, pas d'exceptions"
 layout: two-cols-header
 layoutClass: gap-8
 ---
 
-<SlideHeading text="No null, no exceptions — no 1 billion $ mistake" />
+<SlideHeading text="Pas de null, pas d'exceptions — pas de 1 billion dollars mistake" />
 
 ::left::
 
 <div v-click class="h-full flex flex-col justify-center">
 
-**Result&lt;T, E&gt;** — the exception equivalent
+**Result&lt;T, E&gt;** — l'équivalent des exceptions
 
 ```rust
 pub enum Result<T, E> {
-    /// Contains the success value
+    /// Contient la valeur en cas de succès
     Ok(T),
-    /// Contains the error value
+    /// Contient la valeur d'erreur
     Err(E),
 }
 ```
@@ -235,36 +235,36 @@ pub enum Result<T, E> {
 
 <div v-click class="h-full flex flex-col justify-center">
 
-**Option&lt;T&gt;** — a strong Optional by design
+**Option&lt;T&gt;** — un Optional solide par conception
 
 ```rust
 pub enum Option<T> {
-    /// No value.
+    /// Aucune valeur.
     None,
-    /// Some value of type `T`.
+    /// Une valeur de type `T`.
     Some(T),
 }
 ```
 
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 <!--
-This one is one of my favorites, in Rust there is no exception and no null.
+C'est l'une de mes fonctionnalités préférées : en Rust, il n'y a ni exception ni null.
 
-You might be wondering how ? Simple errors and optional values are baked into the type system. They are Enums that you must handle.
+Vous vous demandez sûrement comment ? C'est simple : les erreurs et les valeurs optionnelles sont intégrées au système de types. Ce sont des enums que vous devez obligatoirement gérer.
 
-[click] Result<T, E> (the exception equivalent)
+[click] Result<T, E> (l'équivalent des exceptions)
 
-[click] Option<T> (a strong Optional by design)
+[click] Option<T> (un Optional solide par conception)
 
-Since they are enums, when you get a Result or an Option you must perform checks to ensure which variant you got, and handle all possible cases. Those are rules the compiler enforces, contrary to Java where a null or an Exception is a runtime problem that the compiler doesn't force you to verify.
+Comme ce sont des enums, quand vous récupérez un Result ou une Option, vous devez vérifier quelle variante vous avez obtenue et gérer tous les cas possibles. Ce sont des règles imposées par le compilateur, contrairement à Java où un null ou une exception est un problème à l'exécution que le compilateur ne vous oblige pas à vérifier.
 -->
 
 ---
-title: "Mutability"
+title: "Mutabilité"
 layout: topic
 ---
 
@@ -272,40 +272,40 @@ layout: topic
 
 ````md magic-move {lines: true}
 ```rust
-// ❌ foo is immutable by default
+// ❌ foo est immuable par défaut
 fn main() {
     let foo = String::from("foo");
 
     foo.insert(3, 's');
 
-    println!("Here is my value ? {foo}");
+    println!("Voici ma valeur ? {foo}");
 }
 ```
 
 ```rust
-// ✅ fixed — declare `foo` as mutable
+// ✅ corrigé — on déclare `foo` comme mutable
 fn main() {
     let mut foo = String::from("foo");
 
     foo.insert(3, 's');
 
-    println!("Here is my value : {foo}");
+    println!("Voici ma valeur : {foo}");
 }
 ```
 ````
 
 <div class="mt-3 mut-output">
   <code-output type="error" :class="{ invisible: $clicks !== 0 }" :text="'error[E0596]: cannot borrow `foo` as mutable, as it is not declared as mutable'" />
-  <code-output type="stdout" :class="{ invisible: $clicks < 1 }" :text="'Here is my value : foos'" />
+  <code-output type="stdout" :class="{ invisible: $clicks < 1 }" :text="'Voici ma valeur : foos'" />
 </div>
 
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 <!-- 
-In java you must use the final keyword to make a variable imutable. In Rust they are immutable by default. If you want to opt out of the immutability you need to use the `mut` keyword. 
+En Java, il faut utiliser le mot-clé final pour rendre une variable immuable. En Rust, elles sont immuables par défaut. Si vous voulez renoncer à l'immuabilité, vous devez utiliser le mot-clé `mut`.
 -->
 
 ---
@@ -324,14 +324,14 @@ layoutClass: gap-8
 
 ```rust
 fn take_ownership(value: String) {
-    println!("Owned value : {value}");
+    println!("Valeur possédée : {value}");
 }
 
 fn main() {
     let foo = String::from("foo");
     take_ownership(foo);
 
-    println!("Here is my value ? {foo}");
+    println!("Voici ma valeur ? {foo}");
 }
 ```
 </div>
@@ -348,23 +348,23 @@ fn main() {
 
 ```rust
 fn borrow(value: &str) {
-    println!("Borrowed value : {value}");
+    println!("Valeur empruntée : {value}");
 }
 
 fn main() {
     let foo = String::from("foo");
     borrow(&foo);
 
-    println!("Here is my value ? {foo}");
+    println!("Voici ma valeur ? {foo}");
 }
 ```
 </div>
 
 <div v-click>
-    <code-output type="stdout" :text="'Borrowed value : foo\nHere is my value ? foo'" />
+    <code-output type="stdout" :text="'Valeur empruntée : foo\nVoici ma valeur ? foo'" />
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 ---
@@ -373,7 +373,7 @@ layout: two-cols-header
 layoutClass: gap-8
 ---
 
-<SlideHeading text="Where does data ends up ?" />
+<SlideHeading text="Où finissent les données ?" />
 
 ::left::
 
@@ -387,10 +387,10 @@ layoutClass: gap-8
     <div>Array(s)</div>
   </div>
   <div v-click="'5'" class="p-3 rounded border border-primary/20 bg-primary/10">
-    <div>Struct(s) (with known-size fields)</div>
+    <div>Struct(s) (avec des champs de taille connue)</div>
   </div>
   <div v-click="'6'" class="p-3 rounded border border-primary/20 bg-primary/10">
-    <div>String header (pointer, size, capacity)</div>
+    <div>String headers (pointeur, taille, capacité)</div>
   </div>
 </div>
 
@@ -400,42 +400,42 @@ layoutClass: gap-8
 
 <div class="flex flex-col gap-2 mt-2">
   <div v-click="'7'" class="p-3 rounded border border-primary/20 bg-primary/10">
-    <div>String data</div>
+    <div>Données d'une String</div>
   </div>
   <div v-click="'8'" class="p-3 rounded border border-primary/20 bg-primary/10">
-    <div>Vec&lt;T&gt; data</div>
+    <div>Données d'un Vec&lt;T&gt;</div>
   </div>
   <div v-click="'9'" class="p-3 rounded border border-primary/20 bg-primary/10">
     <div>Smart pointers</div>
   </div>
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 <!--
-[click] In Rust, like Java, we use the heap and the stack to store data. The difference comes from what goes where and the control you have over it.
+[click] En Rust, comme en Java, on utilise la heap et la stack pour stocker les données. La différence vient de ce qui va où, et du contrôle que vous avez dessus.
 
-The rule for Rust is fairly simple: if the size is known at compile time, the value can live on the stack; anything whose size isn't known is allocated on the heap.
+La règle en Rust est assez simple : si la taille est connue à la compilation, la valeur peut vivre sur la stack ; tout ce dont la taille n'est pas connue est alloué sur la heap.
 
-[click] That means primitives, arrays, and structs (with known-size fields) live on the stack, 
+[click] Cela signifie que les primitives, les tableaux et les structs (avec des champs de taille connue) vivent sur la stack,
 
-[click] while types like String, Vec, and smart pointers manage data on the heap.
+[click] tandis que des types comme String, Vec et les smart pointers gèrent leurs données sur la heap.
 
-But there's a subtle difference compared to Java. For a String in Java, you have a single reference on the stack frame pointing to the data on the heap.
+Mais il y a une différence subtile par rapport à Java. Pour une String en Java, vous avez une seule référence dans la stack frame qui pointe vers les données sur la heap.
 
-In Rust, you hold everything fixed-size on the stack — so the String's capacity, length, and pointer to its data all live in the stack frame, while only the actual bytes live on the heap.
+En Rust, tout ce qui a une taille fixe est sur la stack — donc la capacité, la longueur et le pointeur vers les données de la String vivent tous dans la stack frame, et seuls les octets eux-mêmes vivent sur la heap.
 
-In Java, most data lives on the heap; what lives on the stack is primitives and references to that heap data.
+En Java, la plupart des données vivent sur la heap ; ce qui vit sur la stack, ce sont les primitives et les références vers ces données de la heap.
 -->
 
 ---
-title: "Memory without a GC — values are dropped"
+title: "La mémoire sans GC — les valeurs sont droppées"
 layout: topic
 ---
 
 <div class="text-center opacity-80 mb-6">
-The compiler inserts <code>drop</code> where each owned value leaves scope — no GC needed.
+Le compilateur insère un <code>drop</code> là où chaque valeur possédée sort de son scope — pas besoin de GC.
 </div>
 
 <div class="max-w-2xl mx-auto">
@@ -443,60 +443,60 @@ The compiler inserts <code>drop</code> where each owned value leaves scope — n
 ````md magic-move {lines: true}
 ```rust
 fn take_ownership(value: String) {
-    println!("Owned value : {value}");
-} // value goes out of scope, it gets dropped
+    println!("Valeur possédée : {value}");
+} // value sort du scope, elle est droppée
 
 fn main() {
     let foo = String::from("foo");
-    take_ownership(foo); // foo is moved to value
+    take_ownership(foo); // foo est déplacée dans value
 }
 ```
 
 ```rust
 fn borrow(value: &str) {
-    println!("Borrowed value : {value}");
+    println!("Valeur empruntée : {value}");
 }
 
 fn main() {
     let foo = String::from("foo");
     borrow(&foo);
 
-    println!("Here is my value ? {foo}");
-} // foo goes out of scope, it gets dropped
+    println!("Voici ma valeur ? {foo}");
+} // foo sort du scope, elle est droppée
 ```
 ````
 
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 <!--
-So how does this work without a garbage collector ? Well you remember how we talked about ownership earlier ?
+Alors comment ça marche sans garbage collector ? Vous vous souvenez de ce qu'on a dit sur l'ownership tout à l'heure ?
 
-The compiler knows at compile time where each owned value goes out of scope, and inserts the drop call there. So the cleanup is baked into the compiled program, no runtime garbage collector needed.
+Le compilateur sait, dès la compilation, à quel endroit chaque valeur possédée sort de son scope, et il y insère l'appel à drop. Le nettoyage est donc intégré au programme compilé, pas besoin de garbage collector à l'exécution.
 -->
 
 ---
-title: "The project"
+title: "Le projet"
 layout: center
 class: text-center
 ---
 
-<SectionDivider index="02" name="The project" />
+<SectionDivider index="02" name="Le projet" />
 
 <slide-number/>
 
 ---
-title: "A basic Spring Boot project"
+title: "Un projet Spring Boot classique"
 layout: topic
 ---
 
-<div class="text-center opacity-70 mb-6">What most of us would reach for by default</div>
+<div class="text-center opacity-70 mb-6">Ce que la plupart d'entre nous choisiraient par défaut</div>
 
 <div class="flex flex-col items-center gap-3 text-lg">
   <div class="px-5 py-3 rounded-lg border border-primary/20 bg-primary/10 w-90 text-center">
-    <b>Spring Boot</b> — MVC / REST controllers
+    <b>Spring Boot</b> — MVC / contrôleurs REST
   </div>
   <div class="opacity-40 text-2xl">↓</div>
   <div class="px-5 py-3 rounded-lg border border-primary/20 bg-primary/10 w-90 text-center">
@@ -508,11 +508,11 @@ layout: topic
   </div>
 </div>
 
-<section-label name="The project" />
+<section-label name="Le projet" />
 <slide-number/>
 
 <!--
-Alright let's go with a simple Spring Boot MVC, Hibernate/JPA, PostgreSQL stack. Nothing fancy, pretty much what anyone would use in production. That's the point — this is the architecture most developers would reach for by default. Let's look at it.
+Partons sur une stack simple : Spring Boot MVC, Hibernate/JPA, PostgreSQL. Rien d'extravagant, à peu près ce que tout le monde utiliserait en production. C'est justement le but — c'est l'architecture que la plupart des développeurs choisiraient par défaut. Jetons-y un œil.
 -->
 
 ---
@@ -526,23 +526,23 @@ class: text-center
 <slide-number/>
 
 ---
-title: "Choose a framework"
+title: "Choisir un framework"
 layout: topic
 ---
 
 <div class="text-center max-w-3xl mx-auto mb-8 opacity-85">
-There's <b>no all-in-one Spring Boot</b> in Rust — you pick and <b>assemble the crates yourself.</b>
+Il n'y a <b>pas de Spring Boot tout-en-un</b> en Rust — vous choisissez et <b>assemblez les crates vous-même.</b>
 </div>
 
 <div class="grid grid-cols-2 gap-10 max-w-3xl mx-auto">
   <div>
-    <div class="subtitle mb-3 text-center">Web framework</div>
+    <div class="subtitle mb-3 text-center">Framework web</div>
     <div class="flex flex-col gap-2">
       <div v-click="1" :class="$clicks >= 4 ? 'pick pick--on' : 'pick'">Axum</div>
       <div v-click="2" class="pick">Actix</div>
       <div v-click="3" class="pick">Rocket</div>
     </div>
-    <div v-click="4" class="text-sm opacity-70 mt-3 text-center">most used · great docs &amp; examples</div>
+    <div v-click="4" class="text-sm opacity-70 mt-3 text-center">le plus utilisé · excellente doc &amp; exemples</div>
   </div>
   <div>
     <div class="subtitle mb-3 text-center">ORM</div>
@@ -550,38 +550,38 @@ There's <b>no all-in-one Spring Boot</b> in Rust — you pick and <b>assemble th
       <div v-click="5" :class="$clicks >= 7 ? 'pick pick--on' : 'pick'">Diesel</div>
       <div v-click="6" class="pick">SeaORM</div>
     </div>
-    <div v-click="7" class="text-sm opacity-70 mt-3 text-center">compile-time checks · async via <code>diesel-async</code></div>
+    <div v-click="7" class="text-sm opacity-70 mt-3 text-center">vérifications à la compilation · async via <code>diesel-async</code></div>
   </div>
 </div>
 
 <div v-click="8" class="text-center text-sm opacity-60 mt-8">
-Bonus: in Rust, docs live in your code and get published for everyone on <b>docs.rs</b>
+Bonus : en Rust, la doc vit dans votre code et est publiée pour tout le monde sur <b>docs.rs</b>
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 <!--
-To get as close as possible to the Spring Boot project while staying idiomatic to Rust, we need to assemble a few things ourselves — because there is no full-fledged, batteries-included Spring Boot equivalent in Rust. That's the key idea of this slide.
+Pour se rapprocher le plus possible du projet Spring Boot tout en restant idiomatique en Rust, il faut assembler quelques briques nous-mêmes — parce qu'il n'existe pas d'équivalent complet de Spring Boot, « batteries incluses », en Rust. C'est l'idée clé de cette slide.
 
-[click] [click] [click] First, a web framework. There are several — Axum, Actix, Rocket.
+[click] [click] [click] D'abord, un framework web. Il y en a plusieurs — Axum, Actix, Rocket.
 
-[click] We'll go with Axum: it's the most commonly used, with great examples and documentation.
+[click] On va partir sur Axum : c'est le plus utilisé, avec d'excellents exemples et une très bonne documentation.
 
-[click] [click] Then, an ORM. The two most popular are Diesel and SeaORM.
+[click] [click] Ensuite, un ORM. Les deux plus populaires sont Diesel et SeaORM.
 
-[click] We'll pick Diesel because it's designed to check a lot at compile time, and it can be async with the diesel-async crate.
+[click] On choisit Diesel parce qu'il est conçu pour vérifier un maximum de choses à la compilation, et qu'il peut être async grâce à la crate diesel-async.
 
-[click] A nice aside: in Rust you write your documentation directly in your code, and it gets published for everyone on docs.rs.
+[click] Petite parenthèse sympa : en Rust, on écrit la documentation directement dans le code, et elle est publiée pour tout le monde sur docs.rs.
 -->
 
 ---
-title: "Create a project"
+title: "Créer un projet"
 layout: topic
 ---
 
 <div class="text-center opacity-80 mb-8">
-One tool for building <b>and</b> dependencies — Rust's answer to <b>Maven</b>.
+Un seul outil pour le build <b>et</b> les dépendances — la réponse de Rust à <b>Maven</b>.
 </div>
 
 <div v-click class="flex flex-col items-center gap-2 mb-8">
@@ -592,63 +592,63 @@ One tool for building <b>and</b> dependencies — Rust's answer to <b>Maven</b>.
 <div v-click class="max-w-2xl mx-auto">
 
 ```bash
-cargo new tickets       # scaffold a new project
-cargo add axum diesel   # add dependencies
-cargo run               # build & run
+cargo new tickets       # crée un nouveau projet
+cargo add axum diesel   # ajoute des dépendances
+cargo run               # compile & lance
 ```
 
 </div>
 
-<section-label name="The language" />
+<section-label name="Le langage" />
 <slide-number/>
 
 <!--
-Like Maven for Java, Cargo is Rust's build tool and dependency manager all in one — cargo new to scaffold, cargo add for dependencies, cargo run, cargo test. One tool, no XML. Let's scaffold the project.
+Comme Maven pour Java, Cargo est à la fois l'outil de build et le gestionnaire de dépendances de Rust — cargo new pour créer le projet, cargo add pour les dépendances, cargo run, cargo test. Un seul outil, pas de XML. Créons le projet.
 -->
 
 ---
-title: "Let's migrate"
+title: "Migrons !"
 layout: center
 class: text-center
 ---
 
-<SectionDivider index="03" name="Let's migrate 🚀" />
+<SectionDivider index="03" name="Migrons ! 🚀" />
 
 <slide-number/>
 
 ---
-title: "Reality check"
+title: "Retour à la réalité"
 layout: center
 class: text-center
 ---
 
-<SectionDivider index="04" name="Reality check" />
+<SectionDivider index="04" name="Retour à la réalité" />
 
 <slide-number/>
 
 ---
-title: "If it compiles, it almost certainly works"
+title: "Si ça compile, ça marche presque à coup sûr"
 layout: topic
 ---
 
 <div class="text-center text-lg opacity-80 mb-6">
-Before the program ever runs, the compiler has already guaranteed:
+Avant même que le programme ne s'exécute, le compilateur a déjà garanti :
 </div>
 
 <div class="grid grid-cols-2 gap-3 max-w-3xl mx-auto">
-  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> No <code>null</code> — every absence is an <code>Option</code></div>
-  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> No unhandled error — every failure is a <code>Result</code></div>
-  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> No use-after-free — ownership &amp; borrowing</div>
-  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> No accidental mutation — immutable by default</div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> Pas de <code>null</code> — toute absence est une <code>Option</code></div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> Pas d'erreur non gérée — tout échec est un <code>Result</code></div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> Pas de use-after-free — ownership &amp; borrowing</div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad-check">✓</b> Pas de mutation accidentelle — immuable par défaut</div>
 </div>
 
-<section-label name="Reality check" />
+<section-label name="Retour à la réalité" />
 <slide-number/>
 
 <!--
-With everything we've seen so far, we can be confident that if our Rust program compiles, there's a very low probability it crashes at runtime — the compiler has already run extensive checks that give us that safety. No null, no unhandled error, no use-after-free, no accidental mutation.
+Avec tout ce qu'on a vu jusqu'ici, on peut être confiant : si notre programme Rust compile, il y a très peu de chances qu'il plante à l'exécution — le compilateur a déjà effectué de nombreuses vérifications qui nous apportent cette sécurité. Pas de null, pas d'erreur non gérée, pas de use-after-free, pas de mutation accidentelle.
 
-[click on the last item] ... and that's why, on the last click, the title upgrades: if it compiles, it ALMOST CERTAINLY works. The one thing the compiler can't catch is a logic bug: if your business rules are wrong, they'll still be wrong. But a whole class of runtime crashes is simply gone.
+[click sur le dernier élément] ... et c'est pour ça que, au dernier clic, le titre monte d'un cran : si ça compile, ça marche PRESQUE À COUP SÛR. La seule chose que le compilateur ne peut pas détecter, c'est un bug de logique : si vos règles métier sont fausses, elles le resteront. Mais toute une catégorie de plantages à l'exécution disparaît tout simplement.
 -->
 
 ---
@@ -657,49 +657,49 @@ layout: topic
 ---
 
 <div class="max-w-3xl mx-auto text-center text-xl leading-relaxed">
-The same tools — ownership, borrowing, the type system —
-also make <b>concurrent and parallel code safe at compile time.</b>
+Les mêmes outils — ownership, borrowing, système de types —
+rendent aussi <b>le code concurrent et parallèle sûr dès la compilation.</b>
 </div>
 
 <div v-click class="mt-10 text-center text-2xl font-bold grad">
-Data races simply don't compile.
+Les data races ne compilent tout simplement pas.
 </div>
 
-<section-label name="Reality check" />
+<section-label name="Retour à la réalité" />
 <slide-number/>
 
 <!--
-Another thing that's amazing with Rust — and that we partially saw in this project — is that concurrent and parallel programming are safe. The same tools (ownership, borrowing and the type system, through the Send and Sync traits) guarantee you can't have a data race: it simply won't compile. The Rust team named this "Fearless concurrency".
+Autre chose d'incroyable avec Rust — qu'on a en partie vue dans ce projet — c'est que la programmation concurrente et parallèle est sûre. Les mêmes outils (ownership, borrowing et le système de types, via les traits Send et Sync) garantissent que vous ne pouvez pas avoir de data race : ça ne compile tout simplement pas. L'équipe Rust a appelé ça la « Fearless concurrency ».
 
-To be precise: it eliminates data races, not deadlocks or logic mistakes — but that whole category of threading bugs that "work on my machine and corrupt data in prod" is gone. I won't go deeper here, just know it exists.
+Pour être précis : ça élimine les data races, pas les deadlocks ni les erreurs de logique — mais toute cette catégorie de bugs de threading qui « marchent sur ma machine et corrompent les données en prod » disparaît. Je ne vais pas aller plus loin ici, retenez simplement que ça existe.
 -->
 
 ---
-title: "Is Rust really hard?"
+title: "Rust est-il vraiment difficile ?"
 layout: topic
 ---
 
 <div class="max-w-3xl mx-auto flex flex-col gap-3">
   <div v-click class="px-5 py-3 rounded-lg border border-primary/20 bg-primary/10">
-    <b>Steep learning curve</b> — more concepts to learn up front
+    <b>Courbe d'apprentissage raide</b> — plus de concepts à apprendre d'emblée
   </div>
   <div v-click class="px-5 py-3 rounded-lg border border-primary/20 bg-primary/10">
-    <b>You'll fight the compiler</b> — especially at the beginning
+    <b>Vous allez vous battre avec le compilateur</b> — surtout au début
   </div>
   <div v-click class="px-5 py-3 rounded-lg border border-primary/20 bg-primary/10">
-    <b>It forces a different way of thinking</b>
+    <b>Il impose une autre façon de penser</b>
   </div>
 </div>
 
 <div v-click class="mt-10 text-center text-xl font-semibold max-w-2xl mx-auto">
-  <span class="grad">But the compiler isn't fighting you — it's reviewing your code before it ships.</span>
+  <span class="grad">Mais le compilateur ne se bat pas contre vous — il relit votre code avant qu'il parte en prod.</span>
 </div>
 
-<section-label name="Reality check" />
+<section-label name="Retour à la réalité" />
 <slide-number/>
 
 <!--
-After all that — is Rust really hard? Honestly: it has a steep learning curve, and you'll most likely be fighting the compiler at the beginning. It forces you to think a bit differently than most languages let you — but I'd argue that's exactly the way we should think when we develop. The compiler isn't fighting you, it's reviewing your code before it ships.
+Après tout ça — Rust est-il vraiment difficile ? Honnêtement : il a une courbe d'apprentissage raide, et vous allez très probablement vous battre avec le compilateur au début. Il vous oblige à penser un peu différemment de ce que permettent la plupart des langages — mais je dirais que c'est exactement comme ça qu'on devrait penser quand on développe. Le compilateur ne se bat pas contre vous, il relit votre code avant qu'il parte en prod.
 -->
 
 ---
@@ -713,40 +713,40 @@ class: text-center
 <slide-number/>
 
 ---
-title: "Why my own benchmark?"
+title: "Pourquoi mon propre benchmark ?"
 layout: topic
 ---
 
-<p v-click class="opacity-80 text-center max-w-3xl mx-auto">Plenty of Rust-vs-Java benchmarks online — few are fair or reproducible. So I built my own.</p>
+<p v-click class="opacity-80 text-center max-w-3xl mx-auto">Il existe plein de benchmarks Rust vs Java en ligne — peu sont équitables ou reproductibles. Alors j'ai construit le mien.</p>
 
 <div v-click class="mt-4 max-w-3xl mx-auto">
-  <div class="subtitle mb-3 text-center">5 targets, identical conditions</div>
+  <div class="subtitle mb-3 text-center">5 cibles, conditions identiques</div>
   <div class="flex flex-wrap gap-2 justify-center">
     <span class="px-3 py-1 rounded border border-primary/20 bg-primary/10">Rust — Axum + Diesel</span>
     <span class="px-3 py-1 rounded border border-primary/20 bg-primary/10">Spring MVC (JVM)</span>
-    <span class="px-3 py-1 rounded border border-primary/20 bg-primary/10">Spring MVC (native)</span>
+    <span class="px-3 py-1 rounded border border-primary/20 bg-primary/10">Spring MVC (natif)</span>
     <span class="px-3 py-1 rounded border border-primary/20 bg-primary/10">Spring WebFlux (JVM)</span>
-    <span class="px-3 py-1 rounded border border-primary/20 bg-primary/10">Spring WebFlux (native)</span>
+    <span class="px-3 py-1 rounded border border-primary/20 bg-primary/10">Spring WebFlux (natif)</span>
   </div>
 </div>
 
 <div v-click class="mt-10 max-w-3xl mx-auto text-sm opacity-70 text-center">
-Same machine · same Postgres · capped at <b>4 CPU / 2 GB</b> each · clean DB per run · warm-up excluded · one fixed user journey · 50 / 100 / 300 VUs · <b>0% failures</b>
+Même machine · même Postgres · limité à <b>4 CPU / 2 Go</b> chacun · base propre à chaque run · warm-up exclu · un parcours utilisateur fixe · 50 / 100 / 300 VUs · <b>0 % d'échecs</b>
 </div>
 
 <section-label name="Performance" />
 <slide-number/>
 
 <!--
-There are a lot of Rust-vs-Java benchmarks online, with very different takes and results — and none convinced me. Often they benchmark a hello world, and most of the time you don't know the methodology, the environment, etc. So I built my own, as clear, clean and fair as I could.
+Il existe beaucoup de benchmarks Rust vs Java en ligne, avec des points de vue et des résultats très différents — et aucun ne m'a convaincu. Souvent, ils mesurent un hello world, et la plupart du temps on ne connaît ni la méthodologie, ni l'environnement, etc. Alors j'ai construit le mien, aussi clair, propre et équitable que possible.
 
-[click] I compared Rust against Spring Boot MVC and Spring Boot WebFlux, each also built as a GraalVM native image — five targets in total. MVC is blocking, and since Axum is async / non-blocking, comparing only against MVC wouldn't be fair; that's why the reactive WebFlux is in the mix.
+[click] J'ai comparé Rust à Spring Boot MVC et Spring Boot WebFlux, chacun également compilé en image native GraalVM — cinq cibles au total. MVC est bloquant, et comme Axum est async / non bloquant, comparer uniquement avec MVC n'aurait pas été équitable ; c'est pour ça que WebFlux, réactif, fait partie du lot.
 
-[click] Methodology in short: everything runs on my laptop (i7-11800H, 16 GB RAM, NVMe SSD, Windows 11 + WSL2), every app in a container capped at the same 4 CPU / 2 GB, all hitting the same Postgres. The DB is reset to the same 10k rows before each run, warm-up is excluded (it matters for the JVM's JIT), the same fixed user journey runs for everyone, at 50 / 100 / 300 virtual users. Failure rate was 0% everywhere. And keep in mind: all apps share an equal 10-connection pool, so this measures per-request efficiency under fixed concurrency — not raw scalability.
+[click] La méthodologie en bref : tout tourne sur mon portable (i7-11800H, 16 Go de RAM, SSD NVMe, Windows 11 + WSL2), chaque application dans un conteneur limité aux mêmes 4 CPU / 2 Go, toutes interrogeant le même Postgres. La base est réinitialisée avec les mêmes 10k lignes avant chaque run, le warm-up est exclu (c'est important pour le JIT de la JVM), le même parcours utilisateur fixe est joué pour tout le monde, à 50 / 100 / 300 utilisateurs virtuels. Le taux d'échec était de 0 % partout. Et gardez en tête : toutes les applications partagent un pool identique de 10 connexions, donc ceci mesure l'efficacité par requête à concurrence fixe — pas la scalabilité brute.
 -->
 
 ---
-title: "Throughput"
+title: "Débit"
 layout: center
 ---
 
@@ -756,13 +756,13 @@ layout: center
 <slide-number/>
 
 <!--
-Throughput — requests per second, higher is better. Rust leads at every load and stays flat around 2265 req/s; it never gets close to the CPU cap, so it's pool/DB-bound with lots of headroom.
+Le débit — requêtes par seconde, plus c'est haut, mieux c'est. Rust est en tête à chaque niveau de charge et reste stable autour de 2265 req/s ; il n'approche jamais la limite CPU, donc il est limité par le pool / la base, avec beaucoup de marge.
 
-The JVM is very competitive once warm, around 1900–2050. The surprise: native roughly halves WebFlux throughput — GraalVM Community is ahead-of-time compiled with only the Serial GC, and the allocation-heavy reactive stack is its worst case; blocking MVC is barely affected.
+La JVM est très compétitive une fois chaude, autour de 1900–2050. La surprise : le natif divise environ par deux le débit de WebFlux — GraalVM Community compile ahead-of-time avec uniquement le Serial GC, et la stack réactive, très gourmande en allocations, est son pire cas ; MVC, bloquant, est à peine affecté.
 -->
 
 ---
-title: "Latency"
+title: "Latence"
 layout: center
 ---
 
@@ -775,11 +775,11 @@ layout: center
 <slide-number/>
 
 <!--
-Latency — average on the left, p95 on the right, lower is better. Because the connection pool is fixed, extra load mostly turns into latency (queueing) rather than more throughput — that's the p95 climbing. Rust keeps the lowest p95 at every level.
+La latence — moyenne à gauche, p95 à droite, plus c'est bas, mieux c'est. Comme le pool de connexions est fixe, la charge supplémentaire se transforme surtout en latence (file d'attente) plutôt qu'en débit — c'est le p95 qui grimpe. Rust garde le p95 le plus bas à chaque niveau.
 -->
 
 ---
-title: "Resource use"
+title: "Consommation de ressources"
 layout: center
 ---
 
@@ -792,11 +792,11 @@ layout: center
 <slide-number/>
 
 <!--
-Resource use — peak memory and peak CPU, leaner is better. Rust sips: about 1.4 cores and 24 MB. The JVM is the heaviest on memory (410–530 MB); the native images bring that down to ~300 MB.
+La consommation de ressources — pic de mémoire et pic de CPU, plus c'est sobre, mieux c'est. Rust est très économe : environ 1,4 cœur et 24 Mo. La JVM est la plus gourmande en mémoire (410–530 Mo) ; les images natives la ramènent à ~300 Mo.
 -->
 
 ---
-title: "Startup"
+title: "Démarrage"
 layout: center
 ---
 
@@ -806,13 +806,13 @@ layout: center
 <slide-number/>
 
 <!--
-Startup — note the log scale, from half a millisecond to 5.2 seconds. Native images are ready in under a second, versus 3–5 seconds on the JVM, and Rust starts almost instantly.
+Le démarrage — attention, échelle logarithmique, d'une demi-milliseconde à 5,2 secondes. Les images natives sont prêtes en moins d'une seconde, contre 3–5 secondes sur la JVM, et Rust démarre quasi instantanément.
 
-Fun detail: webflux-native starts ~2.5× faster than mvc-native, because JPA/Hibernate bootstrap is much heavier than R2DBC — so the lean reactive stack that loses on native throughput wins on native startup.
+Détail amusant : webflux-native démarre ~2,5× plus vite que mvc-native, parce que le bootstrap de JPA/Hibernate est bien plus lourd que celui de R2DBC — donc la stack réactive légère, qui perd en débit en natif, gagne au démarrage en natif.
 -->
 
 ---
-title: "Build time"
+title: "Temps de build"
 layout: center
 ---
 
@@ -822,42 +822,42 @@ layout: center
 <slide-number/>
 
 <!--
-Build time — the honest trade-off. A full Rust build takes ~27 s, about 9× the ~3 s of either Spring Boot app.
+Le temps de build — le compromis honnête. Un build Rust complet prend ~27 s, environ 9× les ~3 s de chacune des applications Spring Boot.
 
-But that's the one-off cost: once dependencies are compiled, rebuilding only the ticket crate takes ~3 s, the same as the JVM builds.
+Mais c'est un coût ponctuel : une fois les dépendances compilées, recompiler uniquement la crate ticket prend ~3 s, autant que les builds JVM.
 -->
 
 ---
-title: "Don't just rewrite it in Rust"
+title: "Ne faites pas juste un Rewrite it in Rust"
 layout: center
 class: text-center
 ---
 
-<SectionDivider index="06" name="Don't just &quot;Rewrite it in Rust !&quot;" />
+<SectionDivider index="06" name="Ne faites pas juste un &quot;Rewrite it in Rust !&quot;" />
 
 <slide-number/>
 
 ---
-title: "Is Rust worth it?"
+title: "Rust en vaut-il la peine ?"
 layout: topic
 ---
 
 <div class="grid grid-cols-2 gap-8 max-w-4xl mx-auto">
   <div>
-    <div class="font-bold mb-3 text-center" style="color:#16a34a">Pros</div>
+    <div class="font-bold mb-3 text-center" style="color:#16a34a">Pour</div>
     <div class="flex flex-col gap-2">
-      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Real, measurable performance gains</div>
-      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Safety &amp; robustness by design</div>
-      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Zero-cost abstractions</div>
-      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Moves fast · the Rust Book is excellent</div>
+      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Des gains de performance réels et mesurables</div>
+      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Sûreté &amp; robustesse par conception</div>
+      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Abstractions à coût zéro</div>
+      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">✅ Évolue vite · le Rust Book est excellent</div>
     </div>
   </div>
   <div>
-    <div class="font-bold mb-3 text-center" style="color:#dc2626">Cons</div>
+    <div class="font-bold mb-3 text-center" style="color:#dc2626">Contre</div>
     <div class="flex flex-col gap-2">
-      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">❌ Ecosystem younger / less mature than Spring or Quarkus</div>
-      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">❌ Steep learning curve — takes time to get used to</div>
-      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">❌ You assemble the stack yourself</div>
+      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">❌ Écosystème plus jeune / moins mature que Spring ou Quarkus</div>
+      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">❌ Courbe d'apprentissage raide — il faut du temps pour s'y faire</div>
+      <div v-click class="px-4 py-2 rounded-lg border border-primary/20 bg-primary/10">❌ Vous assemblez la stack vous-même</div>
     </div>
   </div>
 </div>
@@ -866,22 +866,22 @@ layout: topic
 <slide-number/>
 
 <!--
-So — is Rust worth it? It depends on what you need.
+Alors — Rust en vaut-il la peine ? Ça dépend de vos besoins.
 
-Pros: unlike Java it moves much faster (a release every six weeks); clear, measurable performance gains — which matter more and more with green IT, FinOps and everything moving to the cloud; the Rust Book is genuinely excellent; and you get safety, robustness and zero-cost abstractions.
+Pour : contrairement à Java, il évolue beaucoup plus vite (une release toutes les six semaines) ; des gains de performance clairs et mesurables — qui comptent de plus en plus avec le green IT, le FinOps et le passage de tout vers le cloud ; le Rust Book est vraiment excellent ; et vous bénéficiez de la sûreté, de la robustesse et des abstractions à coût zéro.
 
-Cons: the ecosystem isn't as developed or mature as Java's — Spring Boot or Quarkus — and that weighs a lot in the balance; the learning curve is steep and takes time; and you assemble the stack yourself instead of getting a batteries-included framework.
+Contre : l'écosystème n'est pas aussi développé ni aussi mature que celui de Java — Spring Boot ou Quarkus — et ça pèse lourd dans la balance ; la courbe d'apprentissage est raide et demande du temps ; et vous assemblez la stack vous-même au lieu d'avoir un framework « batteries incluses ».
 
-So don't rewrite everything in Rust for the hype — reach for it where performance, safety and cost actually matter.
+Donc ne réécrivez pas tout en Rust pour la hype — utilisez-le là où la performance, la sûreté et les coûts comptent vraiment.
 -->
 
 ---
-title: "Any questions?"
+title: "Des questions ?"
 layout: center
 class: text-center
 ---
 
-<div class="text-5xl font-bold grad">Any questions ?</div>
+<div class="text-5xl font-bold grad">Des questions ?</div>
 
 <div class="flex justify-center gap-16 mt-12">
   <div class="flex flex-col items-center gap-3">
@@ -891,11 +891,11 @@ class: text-center
   </div>
   <div class="flex flex-col items-center gap-3">
     <img src="/assets/rust-for-java-developers-github-qrcode.svg" class="w-40 h-40 rounded-xl bg-white p-2 shadow-lg" />
-    <div class="font-semibold text-[#3f3f46]">This talk on GitHub</div>
+    <div class="font-semibold text-[#3f3f46]">Ce talk sur GitHub</div>
     <div class="text-xs opacity-55">Slides &amp; code</div>
   </div>
 </div>
 
-<div class="mt-12 text-lg opacity-70">Thanks for listening! 🦀</div>
+<div class="mt-12 text-lg opacity-70">Merci de votre attention ! 🦀</div>
 
 <slide-number/>
