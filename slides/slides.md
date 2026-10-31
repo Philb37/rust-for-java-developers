@@ -309,6 +309,30 @@ En Java, il faut utiliser le mot-clé final pour rendre une variable immuable. E
 -->
 
 ---
+title: "Les 3 règles de l'ownership"
+layout: topic
+---
+
+<div class="flex flex-col gap-3 max-w-2xl mx-auto w-full">
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad">1.</b> Chaque valeur en Rust a un <b>propriétaire</b> (owner).</div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad">2.</b> Il ne peut y avoir qu'<b>un seul propriétaire</b> à la fois.</div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad">3.</b> Quand le propriétaire sort du scope, la valeur est <b>droppée</b>.</div>
+</div>
+
+<section-label name="Le langage" />
+<slide-number/>
+
+<!--
+Avant de voir du code, les trois règles de l'ownership, telles qu'elles sont données dans le Rust Book. Tout le reste en découle.
+
+[click] Chaque valeur a un propriétaire : la variable qui la détient.
+
+[click] Un seul propriétaire à la fois. Si je passe ma valeur à une fonction, elle change de propriétaire : c'est un « move », et l'ancienne variable n'est plus utilisable. C'est exactement ce qu'on va voir sur le slide suivant.
+
+[click] Quand le propriétaire sort du scope, la valeur est libérée. C'est comme ça que Rust gère la mémoire sans garbage collector, on y reviendra juste après.
+-->
+
+---
 title: "Ownership & borrowing"
 layout: two-cols-header
 layoutClass: gap-8
