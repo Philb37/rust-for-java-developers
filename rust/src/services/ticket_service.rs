@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::repository::ticket_repository::TicketRepository;
@@ -8,6 +7,7 @@ use crate::models::ticket_status::TicketStatus;
 use crate::schemas::app_error::AppError;
 use crate::schemas::stats_response::StatsResponse;
 use crate::schemas::{create_ticket_request::CreateTicketRequest, ticket_response::TicketResponse};
+use crate::services::domain_error::DomainError;
 
 #[derive(Clone)]
 pub struct TicketService {
@@ -30,7 +30,7 @@ impl TicketService {
             .ticket_repository
             .find_by_id(id)
             .await?
-            .ok_or(AppError::TicketNotFound(id))?;
+            .ok_or(DomainError::TicketNotFound(id))?;
 
         Ok(TicketResponse::from(ticket))
     }
@@ -55,47 +55,14 @@ impl TicketService {
             .ticket_repository
             .update_status(id, status.into())
             .await?
-            .ok_or(AppError::TicketNotFound(id))?;
+            .ok_or(DomainError::TicketNotFound(id))?;
 
         Ok(TicketResponse::from(ticket))
     }
 
-    // TALK : Doing this in memory is bad practice, it should be done in SQL directly.
-    // The goal is to showcase different ways to do something similar to the springboot project.
     pub async fn stats(&self) -> Result<StatsResponse, AppError> {
-        // let tickets = self.ticket_repository.list(None, None).await?;
 
-        // let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
-
-        // for ticket in &tickets {
-        //     *by_status.entry(ticket.status).or_insert(0) += 1;
-        //     *by_priority.entry(ticket.priority).or_insert(0) += 1;
-        // }
-
-        // TALK : Alternative to test
-        // let (by_status, by_priority) = tickets.iter()
-        //     .fold((HashMap::new(), HashMap::new()), |mut acc, ticket| {
-        //         *acc.0.entry(ticket.status).or_insert(0) += 1;
-        //         *acc.1.entry(ticket.priority).or_insert(0) += 1;
-        //         acc
-        //     });
-
-        let stats = self.ticket_repository.stats().await?;
-
-        let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
-        
-        for stat in &stats {
-
-            match (stat.priority, stat.status) {
-                (Some(priority), None) => { by_priority.insert(priority, stat.count); },
-                (None, Some(status)) => { by_status.insert(status, stat.count); },
-                _ => {
-                    return Err(AppError::QueryError(
-                        diesel::result::Error::AlreadyInTransaction,
-                    ));
-                }
-            }
-        }
+        let (by_status, by_priority) = self.ticket_repository.stats().await?;
 
         Ok(StatsResponse {
             by_status,
@@ -107,16 +74,16 @@ impl TicketService {
 #[cfg(test)]
 mod tests {
 
-    use mockall::predicate::eq;
+    use std::collections::HashMap;
+
+use mockall::predicate::eq;
 
     use time::macros::datetime;
 
     use crate::{
         models::{
-            stat::Stat,
             ticket::{NewTicket, Ticket, TicketUpdate},
-        },
-        repository::ticket_repository::MockTicketRepository,
+        }, repository::{database_error::DatabaseError, ticket_repository::MockTicketRepository},
     };
 
     use super::*;
@@ -186,16 +153,14 @@ mod tests {
             .expect_save()
             .with(eq::<NewTicket>(create_ticket_request.clone().into()))
             .returning(|_| {
-                Err(AppError::QueryError(
-                    diesel::result::Error::AlreadyInTransaction,
-                ))
+                Err(DatabaseError::InvalidStatsRow)
             });
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
         let result = ticket_service.create(create_ticket_request).await;
 
-        assert!(matches!(result, Err(AppError::QueryError(_))));
+        assert!(matches!(result, Err(AppError::Database(_))));
     }
 
     #[tokio::test]
@@ -254,7 +219,7 @@ mod tests {
 
         // `TicketNotFound(id)` would BIND a new `id`, not compare with ours — use a guard
         assert!(
-            matches!(result, Err(AppError::TicketNotFound(not_found_id)) if not_found_id == id)
+            matches!(result, Err(AppError::Domain(DomainError::TicketNotFound(not_found_id))) if not_found_id == id)
         );
     }
 
@@ -340,16 +305,14 @@ mod tests {
             .expect_list()
             .with(eq(None), eq(None))
             .returning(move |_, _| {
-                Err(AppError::QueryError(
-                    diesel::result::Error::AlreadyInTransaction,
-                ))
+                Err(DatabaseError::InvalidStatsRow)
             });
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
         let result = ticket_service.list(None, None).await;
 
-        assert!(matches!(result, Err(AppError::QueryError(_))));
+        assert!(matches!(result, Err(AppError::Database(_))));
     }
 
     #[tokio::test]
@@ -408,7 +371,7 @@ mod tests {
         let result = ticket_service.update_status(id, TicketStatus::Closed).await;
 
         assert!(
-            matches!(result, Err(AppError::TicketNotFound(not_found_id)) if not_found_id == id)
+            matches!(result, Err(AppError::Domain(DomainError::TicketNotFound(not_found_id))) if not_found_id == id)
         );
     }
 
@@ -416,24 +379,16 @@ mod tests {
     async fn stats_ok() {
         init_test();
 
-        let stats = vec![
-            Stat {
-                priority: Some(Priority::High),
-                status: None,
-                count: 1,
-            },
-            Stat {
-                priority: None,
-                status: Some(TicketStatus::Open),
-                count: 1
-            },
-        ];
+        let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
+
+        by_status.insert(TicketStatus::Open, 1);
+        by_priority.insert(Priority::High, 1);
 
         let mut mock_repo = MockTicketRepository::new();
         mock_repo
             .expect_stats()
             .with()
-            .returning(move || Ok(stats.clone()));
+            .returning(move || Ok((by_status.clone(), by_priority.clone())));
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
@@ -461,15 +416,13 @@ mod tests {
             .expect_stats()
             .with()
             .returning(|| {
-                Err(AppError::QueryError(
-                    diesel::result::Error::AlreadyInTransaction,
-                ))
+                Err(DatabaseError::InvalidStatsRow)
             });
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
         let result = ticket_service.stats().await;
 
-        assert!(matches!(result, Err(AppError::QueryError(_))));
+        assert!(matches!(result, Err(AppError::Database(_))));
     }
 }

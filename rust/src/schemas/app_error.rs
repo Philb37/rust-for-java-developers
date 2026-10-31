@@ -1,40 +1,26 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{
-        Request,
-        rejection::{JsonRejection, QueryRejection},
-    },
+    extract::Request,
     http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use diesel_async::pooled_connection::deadpool::PoolError;
 use serde::Serialize;
 use time::{OffsetDateTime, serde::rfc3339};
-use validator::ValidationErrors;
 
-use crate::schemas::app_response::AppJson;
+use crate::{extractors::http_error::HttpError, repository::database_error::DatabaseError, schemas::app_response::AppJson, services::domain_error::DomainError};
 
 // This is the equivalent of @ExceptionHandler in Springboot and @ServerExceptionMapper in Quarkus
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    // The request body contained invalid JSON
     #[error(transparent)]
-    JsonRejection(#[from] JsonRejection),
+    Http(#[from] HttpError),
     #[error(transparent)]
-    QueryRejection(#[from] QueryRejection),
+    Database(#[from] DatabaseError),
     #[error(transparent)]
-    Validation(#[from] ValidationErrors),
-    #[error("Something went wrong in the backend")]
-    PoolError(#[from] PoolError),
-    #[error("Something went wrong in the backend")]
-    QueryError(#[from] diesel::result::Error),
-    #[error("Something went wrong in the backend")]
-    StatsError,
-    #[error("Ticket {0} not found")]
-    TicketNotFound(i32),
+    Domain(#[from] DomainError)
 }
 
 impl IntoResponse for AppError {
@@ -48,48 +34,36 @@ impl IntoResponse for AppError {
         }
 
         let (status, message, err) = match &self {
-            AppError::JsonRejection(rejection) => {
+            AppError::Http(HttpError::Validation(e)) => 
                 (
-                    rejection.status(),
-                    rejection.body_text(),
-                    None, // No logging
-                )
-            }
-            AppError::QueryRejection(rejection) => {
+                    StatusCode::BAD_REQUEST, 
+                    e.to_string(), 
+                    None
+                ),
+            AppError::Http(HttpError::JsonRejection(r)) => 
                 (
-                    rejection.status(),
-                    rejection.body_text(),
-                    None, // No logging
-                )
-            }
-            AppError::Validation(validation_error) => {
+                    r.status(), 
+                    r.body_text(), 
+                    None
+                ),
+            AppError::Http(HttpError::QueryRejection(r)) => 
                 (
-                    StatusCode::BAD_REQUEST,
-                    validation_error.to_string(),
-                    None, // No logging
-                )
-            }
-            AppError::PoolError(_) | AppError::QueryError(_) => {
+                    r.status(), 
+                    r.body_text(), 
+                    None
+                ),
+            AppError::Database(_) =>
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Something went wrong in the backend".to_string(),
+                    "Something went wrong in the backend".to_owned(),
                     Some(self), // We log
-                )
-            }
-            AppError::StatsError => {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Something went wrong in the backend".to_string(),
-                    Some(self), // We log
-                )
-            }
-            AppError::TicketNotFound(id) => {
+                ),
+            AppError::Domain(DomainError::TicketNotFound(_)) =>
                 (
                     StatusCode::NOT_FOUND,
-                    format!("Ticket {} not found", id),
+                    self.to_string(),
                     None, // No logging
                 )
-            }
         };
 
         let error_response = ErrorResponse {
@@ -106,20 +80,6 @@ impl IntoResponse for AppError {
         response
     }
 }
-
-// TALK : Useless with thiserror
-// impl From<DbErr> for AppError {
-//     fn from(err: DbErr) -> Self {
-//         Self::DatabaseError(err)
-//     }
-// }
-
-// TALK : Useless with thiserror
-// impl From<JsonRejection> for AppError {
-//     fn from(rejection: JsonRejection) -> Self {
-//         Self::JsonRejection(rejection)
-//     }
-// }
 
 // Our middleware is responsible for logging error details internally
 pub async fn log_app_errors(request: Request, next: Next) -> Response {

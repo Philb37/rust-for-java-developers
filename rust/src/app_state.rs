@@ -1,5 +1,6 @@
 use std::{sync::Arc, time::Duration};
 
+use axum::extract::FromRef;
 use diesel_async::{
     AsyncPgConnection,
     pooled_connection::{
@@ -15,7 +16,7 @@ use crate::{
     services::ticket_service::TicketService,
 };
 
-#[derive(Clone)]
+#[derive(Clone, FromRef)]
 pub struct AppState {
     pub ticket_service: TicketService,
 }

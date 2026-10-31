@@ -2,7 +2,7 @@ use axum::extract::{FromRequest, Request};
 use serde::de::DeserializeOwned;
 use validator::Validate;
 
-use crate::schemas::{app_error::AppError, app_response::AppJson};
+use crate::{extractors::http_error::HttpError, schemas::{app_response::AppJson}};
 
 pub struct ValidatedJson<T>(pub T);
 
@@ -11,7 +11,7 @@ where
     T: DeserializeOwned + Validate,
     S: Send + Sync
 {
-    type Rejection = AppError;
+    type Rejection = HttpError;
 
     async fn from_request(
             req: Request,

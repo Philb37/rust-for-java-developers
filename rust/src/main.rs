@@ -11,7 +11,7 @@ use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
-    app_state::AppState, config::AppConfig, routes::ticket_routes,
+    app_state::AppState, config::AppConfig, controllers::ticket_controller,
     schemas::app_error::log_app_errors,
 };
 
@@ -19,7 +19,7 @@ mod app_state;
 mod config;
 mod extractors;
 mod models;
-mod routes;
+mod controllers;
 mod schema;
 mod schemas;
 mod services;
@@ -66,7 +66,7 @@ async fn main() -> anyhow::Result<()> {
 
 pub fn app(app_state: AppState) -> Router {
     Router::new()
-        .merge(ticket_routes::router())
+        .merge(ticket_controller::router())
         .layer(from_fn(log_app_errors))
         .layer(
             TraceLayer::new_for_http()
@@ -88,7 +88,7 @@ pub fn app(app_state: AppState) -> Router {
                 // logging of errors so disable that
                 .on_failure(()),
         )
-        .with_state(app_state)
+        .with_state(app_state) // Dependency Injection
 }
 
 async fn shutdown_signal() {

@@ -5,9 +5,7 @@ use axum::{
 };
 
 use crate::{
-    app_state::AppState,
-    extractors::{app_query::AppQuery, validated_json::ValidatedJson},
-    schemas::{
+    app_state::AppState, extractors::{app_query::AppQuery, validated_json::ValidatedJson}, schemas::{
         app_error::AppError,
         app_response::{AppJson, Created},
         create_ticket_request::CreateTicketRequest,
@@ -15,7 +13,7 @@ use crate::{
         stats_response::StatsResponse,
         ticket_response::TicketResponse,
         update_status_request::UpdateStatusRequest,
-    },
+    }, services::ticket_service::TicketService,
 };
 
 pub fn router() -> Router<AppState> {
@@ -30,33 +28,32 @@ pub fn router() -> Router<AppState> {
 
 #[debug_handler]
 async fn create(
-    State(app_state): State<AppState>,
+    State(ticket_service): State<TicketService>, // Dependency Injection
     ValidatedJson(request): ValidatedJson<CreateTicketRequest>,
 ) -> Result<Created<TicketResponse>, AppError> {
-    Ok(Created(app_state.ticket_service.create(request).await?))
+    Ok(Created(ticket_service.create(request).await?))
 }
 
 #[debug_handler]
-async fn stats(State(app_state): State<AppState>) -> Result<AppJson<StatsResponse>, AppError> {
-    Ok(AppJson(app_state.ticket_service.stats().await?))
+async fn stats(State(ticket_service): State<TicketService>) -> Result<AppJson<StatsResponse>, AppError> {
+    Ok(AppJson(ticket_service.stats().await?))
 }
 
 #[debug_handler]
 async fn get_by_id(
-    State(app_state): State<AppState>,
+    State(ticket_service): State<TicketService>,
     Path(id): Path<i32>,
 ) -> Result<AppJson<TicketResponse>, AppError> {
-    Ok(AppJson(app_state.ticket_service.get_by_id(id).await?))
+    Ok(AppJson(ticket_service.get_by_id(id).await?))
 }
 
 #[debug_handler]
 async fn list(
-    State(app_state): State<AppState>,
+    State(ticket_service): State<TicketService>,
     AppQuery(params): AppQuery<RequestParams>,
 ) -> Result<AppJson<Vec<TicketResponse>>, AppError> {
     Ok(AppJson(
-        app_state
-            .ticket_service
+        ticket_service
             .list(params.status, params.priority)
             .await?,
     ))
@@ -64,13 +61,12 @@ async fn list(
 
 #[debug_handler]
 async fn update_status(
-    State(app_state): State<AppState>,
+    State(ticket_service): State<TicketService>,
     Path(id): Path<i32>,
     ValidatedJson(request): ValidatedJson<UpdateStatusRequest>,
 ) -> Result<AppJson<TicketResponse>, AppError> {
     Ok(AppJson(
-        app_state
-            .ticket_service
+        ticket_service
             .update_status(id, request.status)
             .await?,
     ))
@@ -79,21 +75,19 @@ async fn update_status(
 #[cfg(test)]
 mod tests {
 
-    use std::sync::Arc;
+    use std::{collections::HashMap, sync::Arc};
 
     use axum::{body::Body, extract::Request, http::StatusCode};
     use http_body_util::BodyExt;
     use mockall::predicate::eq;
+    use serde::Deserialize;
     use time::macros::datetime;
     use tower::ServiceExt;
 
     use crate::{
-        app,
-        models::{
-            priority::Priority, stat::Stat, ticket::{NewTicket, Ticket, TicketUpdate}, ticket_status::TicketStatus
-        },
-        repository::ticket_repository::MockTicketRepository,
-        services::ticket_service::TicketService,
+        app, models::{
+            priority::Priority, ticket::{NewTicket, Ticket, TicketUpdate}, ticket_status::TicketStatus
+        }, repository::{database_error::DatabaseError, ticket_repository::MockTicketRepository}, services::ticket_service::TicketService,
     };
 
     use super::*;
@@ -225,24 +219,15 @@ mod tests {
     async fn stats_returns_200() {
         init_test();
 
-        let stats = vec![
-            Stat {
-                priority: Some(Priority::High),
-                status: None,
-                count: 1,
-            },
-            Stat {
-                priority: None,
-                status: Some(TicketStatus::Open),
-                count: 1
-            },
-        ];
+        let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
+
+        by_status.insert(TicketStatus::Open, 1);
+        by_priority.insert(Priority::High, 1);
 
         let mut mock_repo = MockTicketRepository::new();
         mock_repo
             .expect_stats()
-            .with()
-            .returning(move || Ok(stats.clone()));
+            .returning(move || Ok((by_status.clone(), by_priority.clone())));
 
         let app = app(AppState {
             ticket_service: TicketService::new(Arc::new(mock_repo)),
@@ -278,6 +263,44 @@ mod tests {
                 }
             )
         );
+    }
+
+    #[tokio::test]
+    async fn stats_returns_500() {
+        init_test();
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_stats()
+            .returning(move || Err(DatabaseError::InvalidStatsRow));
+
+        let app = app(AppState {
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
+        });
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("GET")
+                    .uri("/tickets/stats")
+                    .header("content-type", "application/json")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+
+        #[derive(Deserialize)]
+        struct ErrorResponse {
+            message: String
+        }
+
+        let bytes = response.into_body().collect().await.unwrap().to_bytes();
+        let body: ErrorResponse = serde_json::from_slice(&bytes).unwrap();
+
+        assert_eq!(body.message, "Something went wrong in the backend");
     }
 
     #[tokio::test]
