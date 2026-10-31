@@ -1,7 +1,9 @@
+#!/usr/bin/env bash
+
 cd ./rust/src
 
 # Cargo dependencies (axum web stack + config + dev test helpers)
-cargo add anyhow config thiserror tower tracing
+cargo add anyhow config tower tracing
 cargo add axum --features macros
 cargo add tokio --features full
 cargo add tower-http --features trace
@@ -10,22 +12,93 @@ cargo add validator --features derive
 cargo add http-body-util --dev
 cargo add serde_json --dev
 
-# Rewriting main.rs: every module declared, seeded with the finale snippet.
-# The hello-world main is kept so the crate still has an entry point until step 27 replaces it.
+# Rewriting main.rs as the "shell": every module declared, tracing + listener + graceful shutdown.
+# Seeded with step 27 (the app() router) and step 28 (config + state init inside main()).
 cat > main.rs <<'RS'
+use std::time::Instant;
+
+use anyhow::Context;
+use axum::{
+    Router,
+    extract::{MatchedPath, Request},
+    middleware::from_fn,
+};
+use tokio::signal;
+use tower_http::trace::TraceLayer;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+use crate::{
+    app_state::AppState, config::AppConfig, controllers::ticket_controller,
+    schemas::app_error::log_app_errors,
+};
+
 mod schema;
 mod models;
 mod repository;
 mod app_state;
 mod config;
 mod extractors;
-mod routes;
+mod controllers;
 mod schemas;
 mod services;
 
-// 27-main-body
-fn main() {
-    println!("Hello, world!");
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+
+    let start = Instant::now();
+
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                format!(
+                    "info,{}=debug,tower_http=debug,diesel=debug,diesel_async=debug",
+                    env!("CARGO_CRATE_NAME")
+                )
+                .into()
+            }),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    // 28-main-init
+
+    let listener =
+        tokio::net::TcpListener::bind(format!("0.0.0.0:{}", app_config.server.port)).await?;
+
+    tracing::info!("Started rust-app in {:?}.", start.elapsed());
+    tracing::info!("listening on {}", listener.local_addr()?);
+
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
+
+    Ok(())
+}
+
+// 27-main-app
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }
 RS
 
@@ -136,14 +209,14 @@ echo "// 19-schemas-app_error" > schemas/app_error.rs
 cat > schemas/app_response.rs <<'RS'
 use axum::{extract::FromRequest, http::StatusCode, response::{IntoResponse, Response}};
 
-use crate::schemas::app_error::AppError;
+use crate::extractors::http_error::HttpError;
 
 // Create our own JSON extractor by wrapping `axum::Json`. This makes it easy to override the
 // rejection and provide our own which formats errors to match our application.
 //
 // `axum::Json` responds with plain text if the input is invalid.
 #[derive(FromRequest)]
-#[from_request(via(axum::Json), rejection(AppError))]
+#[from_request(via(axum::Json), rejection(HttpError))]
 pub struct AppJson<T>(
     pub T
 );
@@ -171,30 +244,65 @@ where
 }
 RS
 
-# Creating services files (mod.rs written directly)
+# Creating services files (mod.rs + domain_error written directly)
 mkdir -p services
 
-printf 'pub mod ticket_service;\n' > services/mod.rs
+printf 'pub mod ticket_service;\npub mod domain_error;\n' > services/mod.rs
 echo "// 20-services-ticket_service-skeleton" > services/ticket_service.rs
 
-# Creating routes files (routes.rs is the module root next to the routes/ dir, written directly)
-mkdir -p routes
+# domain_error.rs is the business-layer error, wrapped by AppError in step 19
+cat > services/domain_error.rs <<'RS'
+#[derive(Debug, thiserror::Error)]
+pub enum DomainError {
+    #[error("Ticket {0} not found")]
+    TicketNotFound(i32),
+}
+RS
 
-printf 'pub mod ticket_routes;\n' > routes.rs
-echo "// 23-routes-ticket_routes-router" > routes/ticket_routes.rs
+# Creating controllers files (controllers.rs is the module root next to the controllers/ dir, written directly)
+mkdir -p controllers
 
-# Creating extractors files (mod.rs + both extractors written directly to save talk time)
+printf 'pub mod ticket_controller;\n' > controllers.rs
+echo "// 23-controllers-ticket_controller-router" > controllers/ticket_controller.rs
+
+# Creating extractors files (mod.rs + both extractors + http_error written directly to save talk time)
 mkdir -p extractors
 
-printf 'pub mod validated_json;\npub mod app_query;\n' > extractors/mod.rs
+printf 'pub mod validated_json;\npub mod app_query;\npub mod http_error;\n' > extractors/mod.rs
+
+# http_error.rs is the HTTP-layer error (extractor rejections), wrapped by AppError in step 19.
+# Its IntoResponse delegates to AppError so every error response shares the same JSON format.
+cat > extractors/http_error.rs <<'RS'
+use axum::{extract::{rejection::{JsonRejection, QueryRejection}}, response::{IntoResponse, Response}};
+use validator::ValidationErrors;
+
+use crate::schemas::app_error::AppError;
+
+#[derive(Debug, thiserror::Error)]
+pub enum HttpError {
+    // The request body contained invalid JSON
+    #[error(transparent)]
+    JsonRejection(#[from] JsonRejection),
+    #[error(transparent)]
+    QueryRejection(#[from] QueryRejection),
+    #[error(transparent)]
+    Validation(#[from] ValidationErrors),
+}
+
+impl IntoResponse for HttpError {
+    fn into_response(self) -> Response {
+        AppError::from(self).into_response()
+    }
+}
+RS
 
 cat > extractors/app_query.rs <<'RS'
 use axum::extract::FromRequestParts;
 
-use crate::schemas::app_error::AppError;
+use crate::extractors::http_error::HttpError;
 
 #[derive(FromRequestParts)]
-#[from_request(via(axum::extract::Query), rejection(AppError))]
+#[from_request(via(axum::extract::Query), rejection(HttpError))]
 pub struct AppQuery<T>(pub T);
 RS
 
@@ -203,7 +311,7 @@ use axum::extract::{FromRequest, Request};
 use serde::de::DeserializeOwned;
 use validator::Validate;
 
-use crate::schemas::{app_error::AppError, app_response::AppJson};
+use crate::{extractors::http_error::HttpError, schemas::app_response::AppJson};
 
 pub struct ValidatedJson<T>(pub T);
 
@@ -212,7 +320,7 @@ where
     T: DeserializeOwned + Validate,
     S: Send + Sync
 {
-    type Rejection = AppError;
+    type Rejection = HttpError;
 
     async fn from_request(
             req: Request,
