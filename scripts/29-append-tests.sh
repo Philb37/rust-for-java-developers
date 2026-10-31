@@ -1,23 +1,25 @@
+#!/usr/bin/env bash
+
 cd ./rust/src
 
-# Appends the #[cfg(test)] modules to the end of the service and routes files.
-# Run this once the implementations are in place (after snippet 27).
+# Appends the #[cfg(test)] modules to the end of the service and controller files.
+# Run this once the implementations are in place (after snippet 28).
 
 cat >> services/ticket_service.rs <<'TESTS_EOF'
 
 #[cfg(test)]
 mod tests {
 
-    use mockall::predicate::eq;
+    use std::collections::HashMap;
+
+use mockall::predicate::eq;
 
     use time::macros::datetime;
 
     use crate::{
         models::{
-            stat::Stat,
             ticket::{NewTicket, Ticket, TicketUpdate},
-        },
-        repository::ticket_repository::MockTicketRepository,
+        }, repository::{database_error::DatabaseError, ticket_repository::MockTicketRepository},
     };
 
     use super::*;
@@ -87,16 +89,14 @@ mod tests {
             .expect_save()
             .with(eq::<NewTicket>(create_ticket_request.clone().into()))
             .returning(|_| {
-                Err(AppError::QueryError(
-                    diesel::result::Error::AlreadyInTransaction,
-                ))
+                Err(DatabaseError::InvalidStatsRow)
             });
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
         let result = ticket_service.create(create_ticket_request).await;
 
-        assert!(matches!(result, Err(AppError::QueryError(_))));
+        assert!(matches!(result, Err(AppError::Database(_))));
     }
 
     #[tokio::test]
@@ -155,7 +155,7 @@ mod tests {
 
         // `TicketNotFound(id)` would BIND a new `id`, not compare with ours — use a guard
         assert!(
-            matches!(result, Err(AppError::TicketNotFound(not_found_id)) if not_found_id == id)
+            matches!(result, Err(AppError::Domain(DomainError::TicketNotFound(not_found_id))) if not_found_id == id)
         );
     }
 
@@ -241,16 +241,14 @@ mod tests {
             .expect_list()
             .with(eq(None), eq(None))
             .returning(move |_, _| {
-                Err(AppError::QueryError(
-                    diesel::result::Error::AlreadyInTransaction,
-                ))
+                Err(DatabaseError::InvalidStatsRow)
             });
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
         let result = ticket_service.list(None, None).await;
 
-        assert!(matches!(result, Err(AppError::QueryError(_))));
+        assert!(matches!(result, Err(AppError::Database(_))));
     }
 
     #[tokio::test]
@@ -309,7 +307,7 @@ mod tests {
         let result = ticket_service.update_status(id, TicketStatus::Closed).await;
 
         assert!(
-            matches!(result, Err(AppError::TicketNotFound(not_found_id)) if not_found_id == id)
+            matches!(result, Err(AppError::Domain(DomainError::TicketNotFound(not_found_id))) if not_found_id == id)
         );
     }
 
@@ -317,24 +315,16 @@ mod tests {
     async fn stats_ok() {
         init_test();
 
-        let stats = vec![
-            Stat {
-                priority: Some(Priority::High),
-                status: None,
-                count: 1,
-            },
-            Stat {
-                priority: None,
-                status: Some(TicketStatus::Open),
-                count: 1
-            },
-        ];
+        let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
+
+        by_status.insert(TicketStatus::Open, 1);
+        by_priority.insert(Priority::High, 1);
 
         let mut mock_repo = MockTicketRepository::new();
         mock_repo
             .expect_stats()
             .with()
-            .returning(move || Ok(stats.clone()));
+            .returning(move || Ok((by_status.clone(), by_priority.clone())));
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
@@ -362,40 +352,37 @@ mod tests {
             .expect_stats()
             .with()
             .returning(|| {
-                Err(AppError::QueryError(
-                    diesel::result::Error::AlreadyInTransaction,
-                ))
+                Err(DatabaseError::InvalidStatsRow)
             });
 
         let ticket_service = TicketService::new(Arc::new(mock_repo));
 
         let result = ticket_service.stats().await;
 
-        assert!(matches!(result, Err(AppError::QueryError(_))));
+        assert!(matches!(result, Err(AppError::Database(_))));
     }
 }
+
 TESTS_EOF
 
-cat >> routes/ticket_routes.rs <<'TESTS_EOF'
+cat >> controllers/ticket_controller.rs <<'TESTS_EOF'
 
 #[cfg(test)]
 mod tests {
 
-    use std::sync::Arc;
+    use std::{collections::HashMap, sync::Arc};
 
     use axum::{body::Body, extract::Request, http::StatusCode};
     use http_body_util::BodyExt;
     use mockall::predicate::eq;
+    use serde::Deserialize;
     use time::macros::datetime;
     use tower::ServiceExt;
 
     use crate::{
-        app,
-        models::{
-            priority::Priority, stat::Stat, ticket::{NewTicket, Ticket, TicketUpdate}, ticket_status::TicketStatus
-        },
-        repository::ticket_repository::MockTicketRepository,
-        services::ticket_service::TicketService,
+        app, models::{
+            priority::Priority, ticket::{NewTicket, Ticket, TicketUpdate}, ticket_status::TicketStatus
+        }, repository::{database_error::DatabaseError, ticket_repository::MockTicketRepository}, services::ticket_service::TicketService,
     };
 
     use super::*;
@@ -527,24 +514,15 @@ mod tests {
     async fn stats_returns_200() {
         init_test();
 
-        let stats = vec![
-            Stat {
-                priority: Some(Priority::High),
-                status: None,
-                count: 1,
-            },
-            Stat {
-                priority: None,
-                status: Some(TicketStatus::Open),
-                count: 1
-            },
-        ];
+        let (mut by_status, mut by_priority) = (HashMap::new(), HashMap::new());
+
+        by_status.insert(TicketStatus::Open, 1);
+        by_priority.insert(Priority::High, 1);
 
         let mut mock_repo = MockTicketRepository::new();
         mock_repo
             .expect_stats()
-            .with()
-            .returning(move || Ok(stats.clone()));
+            .returning(move || Ok((by_status.clone(), by_priority.clone())));
 
         let app = app(AppState {
             ticket_service: TicketService::new(Arc::new(mock_repo)),
@@ -580,6 +558,44 @@ mod tests {
                 }
             )
         );
+    }
+
+    #[tokio::test]
+    async fn stats_returns_500() {
+        init_test();
+
+        let mut mock_repo = MockTicketRepository::new();
+        mock_repo
+            .expect_stats()
+            .returning(move || Err(DatabaseError::InvalidStatsRow));
+
+        let app = app(AppState {
+            ticket_service: TicketService::new(Arc::new(mock_repo)),
+        });
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("GET")
+                    .uri("/tickets/stats")
+                    .header("content-type", "application/json")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+
+        #[derive(Deserialize)]
+        struct ErrorResponse {
+            message: String
+        }
+
+        let bytes = response.into_body().collect().await.unwrap().to_bytes();
+        let body: ErrorResponse = serde_json::from_slice(&bytes).unwrap();
+
+        assert_eq!(body.message, "Something went wrong in the backend");
     }
 
     #[tokio::test]
@@ -923,4 +939,5 @@ mod tests {
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
     }
 }
+
 TESTS_EOF
