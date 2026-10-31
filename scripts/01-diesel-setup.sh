@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 cd ./rust-temp/src
 
 # Cargo dependencies
@@ -6,6 +8,7 @@ cargo add diesel-async --features tokio-postgres,deadpool,postgres
 cargo add deadpool@0.13 --features rt_tokio_1
 cargo add serde --features derive
 cargo add async-trait
+cargo add thiserror
 cargo add time --features formatting,macros,parsing,serde,serde-well-known
 cargo add mockall --dev
 
@@ -110,9 +113,24 @@ pub struct Stat {
 }
 RS
 
-# Creating repository files (mod.rs written directly, the rest seeded with their first snippet)
+# Creating repository files (mod.rs + database_error written directly, the rest seeded with their first snippet)
 mkdir -p repository
 
-printf 'pub mod ticket_repository;\npub mod diesel_ticket_repository;\n' > repository/mod.rs
+printf 'pub mod database_error;\npub mod ticket_repository;\npub mod diesel_ticket_repository;\n' > repository/mod.rs
+
+# database_error.rs is the persistence-layer error, wrapped by AppError in step 19
+cat > repository/database_error.rs <<'RS'
+use diesel_async::pooled_connection::deadpool::PoolError;
+
+#[derive(Debug, thiserror::Error)]
+pub enum DatabaseError {
+    #[error("Connection pool error")]
+    PoolError(#[from] PoolError),
+    #[error("Query failed")]
+    QueryError(#[from] diesel::result::Error),
+    #[error("unexpected row in stats grouping set")]
+    InvalidStatsRow
+}
+RS
 echo "// 9-repository-ticket_repository" > repository/ticket_repository.rs
 echo "// 10-repository-diesel_ticket_repository-struct" > repository/diesel_ticket_repository.rs
