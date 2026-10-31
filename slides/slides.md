@@ -309,6 +309,30 @@ In java you must use the final keyword to make a variable imutable. In Rust they
 -->
 
 ---
+title: "The 3 rules of ownership"
+layout: topic
+---
+
+<div class="flex flex-col gap-3 max-w-2xl mx-auto w-full">
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad">1.</b> Each value in Rust has an <b>owner</b>.</div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad">2.</b> There can only be <b>one owner</b> at a time.</div>
+  <div v-click class="px-4 py-3 rounded-lg border border-primary/20 bg-primary/10"><b class="grad">3.</b> When the owner goes out of scope, the value is <b>dropped</b>.</div>
+</div>
+
+<section-label name="The language" />
+<slide-number/>
+
+<!--
+Before looking at code, here are the three rules of ownership, as stated in the Rust Book. Everything else follows from them.
+
+[click] Each value has an owner: the variable that holds it.
+
+[click] Only one owner at a time. If I pass my value to a function, it changes owner: that's a "move", and the old variable can't be used anymore. That's exactly what we'll see on the next slide.
+
+[click] When the owner goes out of scope, the value is freed. That's how Rust manages memory without a garbage collector, we'll come back to it right after.
+-->
+
+---
 title: "Ownership & borrowing"
 layout: two-cols-header
 layoutClass: gap-8
